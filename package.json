@@ -1,0 +1,14 @@
+{
+  "name": "pluggable-electron",
+  "version": "0.1.0",
+  "description": "A framework to create a plugin API in Electron apps",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Igor Honhoff",
+  "license": "MIT",
+  "dependencies": {
+    "pacote": "11.1.11"
+  }
+}
