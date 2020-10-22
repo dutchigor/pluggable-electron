@@ -1,26 +1,41 @@
 const { app } = require('electron')
 
-const router = require( "./lib/router" )
-const install = require( "./lib/install" )
-const store = require( "./lib/store")
+const router = require( "./lib/router" ),
+  install = require( "./lib/install" ),
+  store = require( "./lib/store"),
+  uninstall = require( "./lib/uninstall" )
 
-// Get the path to appData
-const appData = app.getPath( 'desktop' )
+// set the initialisation defaults
+const defaults = {
+  path: app.getPath( 'appData' ),
+  useRoutes: false
+}
 
 // Initialise listeners
-module.exports.init = ( path = appData, activePluggins = [] ) => {
+module.exports.init = ( activePluggins = [], options ) => {
+
+  // Provide defaults for unset options
+  const opts = { ...defaults, ...options }
 
   if ( !store.getPluginsPath() ) {
-    store.setPluginsPath( path )
+    // If no path to plugin folder is set yet
+    // initialise store and router
+    store.setPluginsPath( opts.path )
     store.setActivePlugins( activePluggins )
+
+    router.init( opts.useRoutes )
   } else {
+    // Otherwise do not initialise
     console.warn( 'Pluggable Electron is already initialised' )
     return
   }
-
-  router.init()
 }
 
+// update plugin folder
 module.exports.updatePluginsPath = store.setPluginsPath
 
+// Install plugin
 module.exports.install = install
+
+//uninstall plugin
+module.exports.uninstall = uninstall
