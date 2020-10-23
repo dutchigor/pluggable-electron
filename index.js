@@ -31,8 +31,9 @@ module.exports.init = ( activePluggins = [], options ) => {
   }
 }
 
-// update plugin folder
+// plugin folder
 module.exports.updatePluginsPath = store.setPluginsPath
+module.exports.getPluginsPath = store.getPluginsPath
 
 // Install plugin
 module.exports.install = install
