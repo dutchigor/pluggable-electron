@@ -4,9 +4,12 @@ const fs = require( "fs" ),
 const Package = require("./Package"),
   store = require( "./store" )
 
+// An NPM package that can be used as a Pluggable Electron plugin
 module.exports = class Plugin extends Package {
   path
   active = false
+
+  // Extract plugin to plugins folder and all dependencies in a node_modules folder
   async install ( spec ) {
     const pluginsPath = store.pluginsPath
     try {
@@ -23,26 +26,21 @@ module.exports = class Plugin extends Package {
       return this
   
     } catch ( err ) {
+      // Remove entire plugin on failure of any package
       if ( this.name ) fs.rmdirSync( path.join( pluginsPath, this.name), { recursive: true } )
       throw err
     }
   }
 
+  // Remove plugin folder from plugins folder
   uninstall() {
-    // Remove plugin folder from plugins folder
     fs.rmdirSync( this.path, { recursive: true } )
   }
 
-  loadFromFile( pkg ) {
+  // Load Plugin details from an existing object
+  loadPkg( pkg ) {
     for ( const key in pkg ) {
       this[key] = pkg[key]
     }
-  }
-
-  async loadPkg( plgPath ) {
-    // Get manifest from where the plugin is installed
-    await this.getManifest( plgPath )
-
-    this.path = plgPath
   }
 }

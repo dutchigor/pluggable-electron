@@ -3,30 +3,33 @@ const { ipcMain } = require( "electron" )
 const pm = require( "./plugin-manager" ),
   store = require( "./store" )
 
-// Register install IPC route
+// Register IPC route to install a plugin
 const routeInstall = channel => {
   ipcMain.handle( channel, ( e, package, options ) =>
     pm.install( package, options )
   )
 }
 
-// Register uninstall IPC route
+// Register IPC route to uninstall a plugin
 const routeUninstall = channel => {
   ipcMain.handle( channel, ( e, package ) =>
     pm.uninstall( package )
   )
 }
 
+// Register IPC route to get a list of plugins by name
 const routeGetPlugins = channel => {
   ipcMain.handle( channel, ( e, plugins ) =>
     store.getPlugins( plugins )
   )
 }
 
+// Register IPC route to get the list of active plugins
 // const routeGetActivePlugins = channel => {
 //   ipcMain.handle( channel, () => store.getActivePlugins )
 // }
 
+// Register IPC route to toggle the active state of a plugin
 const routeTogglePluginActive = channel => {
   ipcMain.handle( channel, ( e, plugin, active ) => {
     store.togglePluginActive( plugin, active )
@@ -59,7 +62,7 @@ module.exports.init = function ( routes ) {
   // If routes is an array, enable all routes included in array
   else if ( Array.isArray( routes ) ) {
     for ( route of routes ) {
-      if ( allRoutes.hasOwnProperty( route ) ) allRoutes[route]()
+      if ( allRoutes.hasOwnProperty( route ) ) allRoutes[route].handle()
     }
   }
 }

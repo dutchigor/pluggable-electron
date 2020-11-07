@@ -1,4 +1,4 @@
-const rm = require( "./src/common/reg-manager" )
+const rm = require( "./common/reg-manager" )
 
 // Plugin class
 module.exports = rm
