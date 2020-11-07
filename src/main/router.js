@@ -1,24 +1,46 @@
 const { ipcMain } = require( "electron" )
-const pm = require( "./plugin-manager" )
+
+const pm = require( "./plugin-manager" ),
+  store = require( "./store" )
 
 // Register install IPC route
-const routeInstall = ( channel ) => {
+const routeInstall = channel => {
   ipcMain.handle( channel, ( e, package, options ) =>
     pm.install( package, options )
   )
 }
 
 // Register uninstall IPC route
-const routeUninstall = ( channel) => {
+const routeUninstall = channel => {
   ipcMain.handle( channel, ( e, package ) =>
     pm.uninstall( package )
   )
 }
 
+const routeGetPlugins = channel => {
+  ipcMain.handle( channel, ( e, plugins ) =>
+    store.getPlugins( plugins )
+  )
+}
+
+// const routeGetActivePlugins = channel => {
+//   ipcMain.handle( channel, () => store.getActivePlugins )
+// }
+
+const routeTogglePluginActive = channel => {
+  ipcMain.handle( channel, ( e, plugin, active ) => {
+    store.togglePluginActive( plugin, active )
+    return store.getPlugins( [ plugin ] )
+  })
+}
+
 // store of all available routes
 const allRoutes = {
   install: { handle: routeInstall, channel: 'pluggable:install' },
-  uninstall: { handle: routeUninstall, channel: 'pluggable:uninstall' }
+  uninstall: { handle: routeUninstall, channel: 'pluggable:uninstall' },
+  getPlugins: { handle: routeGetPlugins, channel: 'pluggable:getPlugins' },
+  // getActivePlugins: {handle: routeGetActivePlugins, channel: 'pluggable:getActivePlugins'},
+  togglePluginActive: { handle: routeTogglePluginActive, channel: 'pluggable:togglePluginActive'}
 }
 
 // intitialise module

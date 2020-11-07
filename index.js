@@ -1,4 +1,4 @@
-const pm = require( "./src/main/plugin-manager" )
+const rm = require( "./src/common/reg-manager" )
 
 // Plugin class
-module.exports = pm
+module.exports = rm

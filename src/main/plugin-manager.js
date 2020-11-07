@@ -1,13 +1,16 @@
+const fs = require( "fs" ),
+  path = require( "path" )
+
 const Plugin = require( "./Plugin"),
   router = require( "./router" ),
   store = require( "./store" )
 
 module.exports.install = async ( spec, options ) => {
-  const plugin = new Plugin( spec, options )
+  const plugin = new Plugin( options )
 
   try {
     // Install the plugin package in the plugins folder
-    await plugin.install()
+    await plugin.install( spec )
     store.addPlugin( plugin )
     return plugin
 
@@ -20,7 +23,7 @@ module.exports.install = async ( spec, options ) => {
 // Uninstall plugin
 module.exports.uninstall = async ( plugin ) => {
   if ( !( plugin instanceof Plugin ) ) {
-    plugin = store.getPlugin( plugin )
+    plugin = store.getPlugins( [ plugin ] )[0]
   }
 
   if ( !plugin ) {
@@ -34,13 +37,30 @@ module.exports.uninstall = async ( plugin ) => {
 }
 
 // Initialise listeners
-module.exports.init = ( options ) => {
+module.exports.init = async ( options ) => {
 
   // Provide defaults for unset options
-  defaults = store.getDefaults()
-  const opts = { ...defaults, ...options }
+  const opts = { ...store.getDefaults(), ...options }
 
-  const plugins = store.setPluginsPath( opts.path )
+  store.pluginsPath = opts.path
+
+  const pluginsFile = path.join( opts.path, 'plugins.json' )
+
+  if ( fs.existsSync( pluginsFile ) ) {
+    const plugins = JSON.parse( fs.readFileSync( pluginsFile ) )
+    try {
+      for ( const name in plugins ) {
+        const plugin = new Plugin()
+        plugin.loadFromFile( plugins[name] )
+        store.addPlugin( plugin, false )
+      }
+    } catch ( error ) {
+      throw error // new Error( 'Could not successfully rebuild list of installed plugins. Please check the plugins.json file in the plugins folder' )
+    }
+  }
+
   router.init( opts.useRoutes )
-  return plugins
+  return store.getActivePlugins()
 }
+
+module.exports.getPlugins = store.getPlugins

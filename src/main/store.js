@@ -1,31 +1,38 @@
-const fs = require( "fs" ),
-  { app } = require('electron')
-
-  const plugins = []
-
-module.exports.getPlugin = ( name ) =>
-  plugins.find( plugin => plugin.name === name )
-
-module.exports.removePlugin = ( name ) => {
-  const index = plugins.findIndex( package => package.name === name )
-  if (index > -1 ) plugins.splice(index, 1 )
-  return plugins
-}
-
-module.exports.addPlugin = ( package ) => {
-  this.removePlugin( package.name )
-  plugins.push( package )
-  return plugins
-}
+const { app } = require( "electron" ),
+  fs = require( "fs" ),
+  path = require( "path" )
 
 // Path to the plugins folder
-let pluginsPath = null
+module.exports.pluginsPath = null
 
-module.exports.setPluginsPath = ( path ) => {
-  pluginsPath = path
+const plugins = {}
+
+module.exports.getPlugins = ( names ) => names.map( name => plugins[name] )
+
+module.exports.getAllPlugins = () => Object.values( plugins )
+
+module.exports.getActivePlugins = () =>
+Object.values( plugins ).filter( plugin => plugin.active )
+
+module.exports.removePlugin = ( name, persist = true ) => {
+  delete plugins[name]
+  if ( persist ) persistPlugins()
 }
 
-module.exports.getPluginsPath = () => pluginsPath
+module.exports.addPlugin = ( package, persist = true ) => {
+  plugins[package.name] = package
+  if ( persist ) persistPlugins()
+}
+
+module.exports.togglePluginActive = ( plugin, active, persist = true ) => {
+  plugins[plugin].active = active
+  if ( persist ) persistPlugins()
+}
+
+const persistPlugins = () => {
+  const filename = path.join( this.pluginsPath, 'plugins.json' )
+  return fs.writeFileSync( filename, JSON.stringify( plugins ), 'utf8' )
+}
 
 // set the initialisation defaults
 module.exports.getDefaults = () => {
