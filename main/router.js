@@ -1,39 +1,54 @@
 const { ipcMain } = require( "electron" )
 
-const pm = require( "./plugin-manager" ),
-  store = require( "./store" )
+const store = require( "./store" ),
+  Plugin = require( "./Plugin" )
 
 // Register IPC route to install a plugin
 const routeInstall = channel => {
-  ipcMain.handle( channel, ( e, package, options ) =>
-    pm.install( package, options )
-  )
+  ipcMain.handle( channel, ( e, plg, options ) => {
+    const plugin = Plugin.install( plg, options )
+    return plugin
+  })
 }
 
 // Register IPC route to uninstall a plugin
 const routeUninstall = channel => {
-  ipcMain.handle( channel, ( e, package ) =>
-    pm.uninstall( package )
-  )
+  ipcMain.handle( channel, ( e, plg ) => {
+    const plugin = store.getPlugin( plg )
+    plugin.uninstall = true
+    plugin.active = false
+    store.persistPlugins()
+    return plugin
+  })
+}
+
+// Register IPC route to uninstall a plugin
+const routeUpdate = channel => {
+  ipcMain.handle( channel, ( e, plg ) => {
+    const plugin = store.getPlugin( plg )
+    return plugin.update()
+  })
 }
 
 // Register IPC route to get a list of plugins by name
-const routeGetPlugins = channel => {
-  ipcMain.handle( channel, ( e, plugins ) =>
-    store.getPlugins( plugins )
-  )
-}
+// const routeGetPlugins = channel => {
+//   ipcMain.handle( channel, ( e, plugins ) =>
+//     store.getPlugins( plugins )
+//   )
+// }
 
 // Register IPC route to get the list of active plugins
-// const routeGetActivePlugins = channel => {
-//   ipcMain.handle( channel, () => store.getActivePlugins )
-// }
+const routeGetActivePlugins = channel => {
+  ipcMain.handle( channel, () => store.getActivePlugins() )
+}
 
 // Register IPC route to toggle the active state of a plugin
 const routeTogglePluginActive = channel => {
-  ipcMain.handle( channel, ( e, plugin, active ) => {
-    store.togglePluginActive( plugin, active )
-    return store.getPlugins( [ plugin ] )
+  ipcMain.handle( channel, ( e, plg, active ) => {
+    const plugin = store.getPlugin( plg )
+    plugin.active = active
+    store.persistPlugins()
+    return plugin
   })
 }
 
@@ -41,8 +56,9 @@ const routeTogglePluginActive = channel => {
 const allRoutes = {
   install: { handle: routeInstall, channel: 'pluggable:install' },
   uninstall: { handle: routeUninstall, channel: 'pluggable:uninstall' },
-  getPlugins: { handle: routeGetPlugins, channel: 'pluggable:getPlugins' },
-  // getActivePlugins: {handle: routeGetActivePlugins, channel: 'pluggable:getActivePlugins'},
+  update: { handle: routeUpdate, channel: 'pluggable:update' },
+  // getPlugins: { handle: routeGetPlugins, channel: 'pluggable:getPlugins' },
+  getActivePlugins: {handle: routeGetActivePlugins, channel: 'pluggable:getActivePlugins'},
   togglePluginActive: { handle: routeTogglePluginActive, channel: 'pluggable:togglePluginActive'}
 }
 

@@ -3,15 +3,16 @@ const path = require( "path" )
 
 // An installable NPM package
 module.exports = class Package {
+  origin
+  installOptions
   name
   version
   extensionPoints
   dependencies
-  origin
-  installOptions
 
   // Set installOptions with defaults for options that have not been provided  
-  constructor( options ) {
+  constructor( origin, options ) {
+    this.origin = origin
     const defaultOpts = {
       version: false,
       fullMetadata: false
@@ -20,33 +21,39 @@ module.exports = class Package {
     this.installOptions = { ...defaultOpts, ...options }
   }
 
+  // Use NPM friendly package name
+  get specifier() {
+    return this.origin + ( this.installOptions.version ? '@' + this.installOptions.version : '' )    
+  }
+
   // Set Package details based on it's manifest
-  async getManifest( spec ) {
+  async getManifest() {
     // Get the package's manifest (package.json object)
-    const manifest = await pacote.manifest( spec, this.installOptions )
+    const manifest = await pacote.manifest( this.specifier, this.installOptions )
 
     // If a valid manifest is found
-    if ( !manifest.name ) throw new Error( `The package ${spec} does not contain a valid manifest` )
+    if ( !manifest.name )
+      throw new Error( `The package ${this.origin} does not contain a valid manifest` )
 
     // set the Package properties based on the it's manifest
     this.name = manifest.name
     this.version = manifest.version
-    this.origin = manifest._from
     this.dependencies = manifest.dependencies || {}
-    this.extensionPoints = manifest.extensionPoints || null
+    this.activationPoints = manifest.activationPoints || null
+
+    return this
   }
 
   // Extract the package to the provided folder
-  async installPkg( spec, installPath ) {
-    // Use NPM friendly package name
-    const version = this.installOptions.version
-    const pkg = spec + ( version ? '@' + version : '' )
+  async installPkg( installPath ) {
 
     // import the manifest details
-    await this.getManifest( spec )
+    await this.getManifest()
 
     // Install the package in a child folder of the given folder
-    await pacote.extract( pkg, path.join( installPath, this.name))
+    await pacote.extract( this.specifier, path.join( installPath, this.name), this.installOptions )
+
+    return this
   }
 
   async installDeps( modulesPath ) {
@@ -56,10 +63,11 @@ module.exports = class Package {
 
     // Install dependencies and all descendant dependencies
     for ( const [ name, version ] of deps ) {
-      const childPkg = new Package( this.installOptions )
+      const childPkg = new Package( name, this.installOptions )
       childPkg.installOptions.version = version
-      await childPkg.installPkg( name, modulesPath )
+      await childPkg.installPkg( modulesPath )
       await childPkg.installDeps( modulesPath )
     }
+    return this
   }
 }
