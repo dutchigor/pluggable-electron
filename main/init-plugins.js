@@ -2,15 +2,17 @@ const fs = require( "fs" ),
   path = require( "path" )
 
 const Plugin = require( "./Plugin"),
-  router = require( "./router" ),
   store = require( "./store" )
 
 // Initialise Plugin Manager
-module.exports.init = async ( options ) => {
-
+module.exports = async ( pluginsPath ) => {  
   // Store the path to the plugins folder
-  if ( typeof options.path === 'string')
-    store.pluginsPath = options.path
+  store.pluginsPath = pluginsPath
+
+  // Remove any registered plugins
+  for ( const plugin of store.getAllPlugins() ) {
+    store.removePlugin( plugin.name )
+  }
 
   // Read plugin list from plugins folder
   const pluginsFile = path.join( store.pluginsPath, 'plugins.json' )
@@ -29,15 +31,6 @@ module.exports.init = async ( options ) => {
     }
   }
 
-  // Initialise IPC routes
-  router.init( options.useRoutes )
-
   // Return a list of all plugins to be activated in the client
   return store.getActivePlugins()
 }
-
-// Get a list of Plugin objects by name
-module.exports.getPlugins = store.getPlugins
-
-// Save stored plugins to file
-module.exports.persistPlugins = store.persistPlugins

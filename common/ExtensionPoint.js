@@ -1,24 +1,24 @@
 module.exports = class ExtensionPoint {
   name
-  plugins = []
+  extensions = []
 
   constructor( name ) {
     this.name = name
   }
 
   register( name, response, priority = 0 ) {
-    const index = this.plugins.findIndex( p => p.priority > priority )
-    const newPlg = { name, response, priority }
+    const index = this.extensions.findIndex( p => p.priority > priority )
+    const newExt = { name, response, priority }
     if ( index > -1 ) {
-      this.plugins.splice( index, 0, newPlg )
+      this.extensions.splice( index, 0, newExt )
     } else {
-      this.plugins.push( newPlg )
+      this.extensions.push( newExt )
     }
     console.log( this )
   }
 
   execute( input ) {
-    return Promise.all( this.plugins.map( p => {
+    return Promise.all( this.extensions.map( p => {
       if ( typeof p.response === 'function' ) {
         return p.response( input )
       } else  {
@@ -28,11 +28,11 @@ module.exports = class ExtensionPoint {
   }
 
   async executeSerial( input ) {
-    return await this.plugins.reduce( async ( throughput, p ) => {
+    return await this.extensions.reduce( async ( throughput, p ) => {
       let tp = await throughput 
       if ( typeof p.response === 'function' ) {
         tp = await p.response( tp )
-      } else {
+      } else if ( Array.isArray( tp ) ) {
         tp.push( p.response )
       }      
       return tp
