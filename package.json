@@ -4,7 +4,7 @@
   "description": "A framework to create a plugin API in Electron apps",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "docs": "node docs/genDocs.js"
   },
   "author": "Igor Honhoff",
   "repository": "https://github.com/dutchigor/pluggable-electron",
@@ -13,5 +13,8 @@
     "is-electron-renderer": "^2.0.1",
     "mock-require": "^3.0.3",
     "pacote": "11.1.11"
+  },
+  "devDependencies": {
+    "jsdoc-to-markdown": "^6.0.1"
   }
 }
