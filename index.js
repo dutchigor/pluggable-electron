@@ -14,8 +14,18 @@ if ( isRenderer ) {
     } 
   }
 } else {
-  exp.initPlugins = require( "./lib/main/init-plugins" )
-  exp.useRenderer = require( "./lib/main/router" )
+  const init = require( "./lib/main/init" )
+  const useRenderer = require( "./lib/main/router" )
+  const store = require( "./lib/main/store" )
+  
+  exp.loadPlugins = init.loadPlugins
+  exp.installPlugin = init.installPlugin
+  exp.useRenderer = useRenderer
+  exp.register = {
+    getPlugin: store.getPlugin,
+    getAllPlugins: store.getAllPlugins,
+    getActivePlugins: store.getActivePlugins
+  }
 }
 
 module.exports = exp
