@@ -30,7 +30,7 @@ The framework includes the tools necessary to manage the whole life cycle of plu
 
 The framework uses [inversion of control](https://en.wikipedia.org/wiki/Inversion_of_control) and [dependency inversion](https://en.wikipedia.org/wiki/Dependency_inversion_principle) principles for this.
 
-![Framework process](images/Pluggable-Electron-design.svg)
+![Framework process](Pluggable-Electron-design.svg)
 
 ## Getting Started
 
