@@ -2,12 +2,22 @@
   "name": "pluggable-electron",
   "version": "0.1.0",
   "description": "A framework to create a plugin API in Electron apps",
-  "main": "index.js",
+  "keywords": [
+    "electron",
+    "plugin",
+    "framework",
+    "extend",
+    "extension"
+  ],
+  "main": "lib/index.js",
+  "files": [
+    "lib/*"
+  ],
   "scripts": {
     "docs": "node docs/genDocs.js"
   },
   "author": "Igor Honhoff",
-  "repository": "https://github.com/dutchigor/pluggable-electron",
+  "repository": "github:dutchigor/pluggable-electron",
   "license": "MIT",
   "dependencies": {
     "is-electron-renderer": "^2.0.1",
@@ -16,5 +26,11 @@
   },
   "devDependencies": {
     "jsdoc-to-markdown": "^6.0.1"
+  },
+  "peerDependencies": {
+    "electron": "10 - 11"
+  },
+  "bugs": {
+    "url": "https://github.com/dutchigor/pluggable-electron/issues"
   }
 }
