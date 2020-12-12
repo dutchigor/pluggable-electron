@@ -30,7 +30,7 @@ The framework includes the tools necessary to manage the whole life cycle of plu
 
 The framework uses [inversion of control](https://en.wikipedia.org/wiki/Inversion_of_control) and [dependency inversion](https://en.wikipedia.org/wiki/Dependency_inversion_principle) principles for this.
 
-![Framework process](Pluggable-Electron-design.svg)
+![Framework process](https://github.com/dutchigor/pluggable-electron/wiki/images/Pluggable-Electron-design.svg)
 
 ## Getting Started
 
@@ -64,7 +64,7 @@ pe.init( true )
 // Create extension point
 pe.extensionPoints.add( 'purchase_menu' )
 ```
-Then execute this extension point where you want to extend your code. This can be done as a handover, parallel execution, or serial execution. These options are explained [here](wiki/home#DefiningandTriggeringExtensionPoints).
+Then execute this extension point where you want to extend your code. This can be done as a handover, parallel execution, or serial execution. These options are explained [here](https://github.com/dutchigor/pluggable-electron/wiki#defining-and-triggering-extension-points).
 ```javascript
 // your-module.js
 const pe = require( "pluggable-electron" )
@@ -103,9 +103,9 @@ module.exports.init = extensionPoints => {
 ```
 
 ### Installing plugins
-Plugins can be installed from the main process or the renderer. In this setup we will use the renderer. This still requires initialising the plugin facade in the main process. Doing everything from the main process is described in the [API documentation](wiki/main-API).
+Plugins can be installed from the main process or the renderer. In this setup we will use the renderer. This still requires initialising the plugin facade in the main process. Doing everything from the main process is described in the [API documentation](https://github.com/dutchigor/pluggable-electron/wiki/main-API).
 
-Once installed, he plugins should be loaded on every startup.
+Once installed, the plugins should be loaded on every startup.
 
 ```javascript
 // main.js
@@ -148,7 +148,7 @@ pe.activation.trigger( 'init' )
 Now the `yourCustomExtension` function in the plugin will be executed when the execution point `purchase_menu` is triggered.
 
 ### Further functionality
-Pluggable Electron provides a host of functions to support the full plugin lifecycle and some alternative workflows. A more detailed description of the full lifecycle, as well as a detailed API documentation can be found in the [wiki](wiki).
+Pluggable Electron provides a host of functions to support the full plugin lifecycle and some alternative workflows. A more detailed description of the full lifecycle, as well as a detailed API documentation can be found in the [wiki](https://github.com/dutchigor/pluggable-electron/wiki).
 
 ## Roadmap
 
