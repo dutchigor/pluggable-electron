@@ -20,7 +20,7 @@
 **Pluggable Electron is a framework to build Electron apps that can be extended by other parties.** 
 
 ### :heavy_exclamation_mark: Notice :heavy_exclamation_mark: 
-Note that this project is under active development. The main branch should work so feel free to try it out and [report](https://github.com/dutchigor/pluggable-electron/issues) it if you have any questions of find any issues, but expect breaking changes still at this point.
+Note that this project is under active development. I'll try to keep the main branch in working order so feel free to try it out and [report](https://github.com/dutchigor/pluggable-electron/issues) it if you have any questions of find any issues. But expect breaking changes still at this point.
 
 ## Introduction
 
