@@ -1,6 +1,6 @@
 {
   "name": "pluggable-electron",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A framework to create a plugin API in Electron apps",
   "keywords": [
     "electron",
@@ -25,10 +25,10 @@
     "pacote": "^11.2.7"
   },
   "devDependencies": {
-    "jsdoc-to-markdown": "^6.0.1"
+    "jsdoc-to-markdown": "^7.0.1"
   },
   "peerDependencies": {
-    "electron": "10 - 11"
+    "electron": "10 - 13"
   },
   "bugs": {
     "url": "https://github.com/dutchigor/pluggable-electron/issues"
