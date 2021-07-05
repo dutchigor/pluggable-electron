@@ -3,7 +3,7 @@
  * @namespace extensionPoints
  */
 
-const ExtensionPoint = require("./ExtensionPoint")
+import ExtensionPoint from "./ExtensionPoint.js"
 
 /** 
  * @constant {Object.<string, ExtensionPoint>} extensionPoints
@@ -18,8 +18,8 @@ const extensionPoints = {}
  * @returns {void}
  * @alias extensionPoints.add
  */
-module.exports.add = name => {
-  extensionPoints[name] = new ExtensionPoint( name )
+export function add(name) {
+  extensionPoints[name] = new ExtensionPoint(name)
 }
 
 /**
@@ -28,13 +28,13 @@ module.exports.add = name => {
  * @returns {Array.<ExtensionPoint>} Found extension points
  * @alias extensionPoints.get
  */
-module.exports.get = eps => {
-  if ( !eps ) return extensionPoints
-  eps.reduce( ( res, name ) => {
-    if ( typeof extensionPoints[name] === 'object' )
-      res.push( extensionPoints[name] )
+export function get(eps) {
+  if (!eps) return extensionPoints
+  eps.reduce((res, name) => {
+    if (typeof extensionPoints[name] === 'object')
+      res.push(extensionPoints[name])
     return res
-  }, [] )
+  }, [])
 }
 
 /**
@@ -46,11 +46,11 @@ module.exports.get = eps => {
  * @returns {Promise.<Array>} Result of Promise.all or Promise.allSettled depending on exitOnError
  * @alias extensionPoints.execute
  */
-module.exports.execute = ( name, input, exitOnError ) => {
-  if ( typeof extensionPoints[name] !== 'object' )
-    throw new Error( `No extension point found with name ${name}` )
+export function execute(name, input, exitOnError) {
+  if (typeof extensionPoints[name] !== 'object')
+    throw new Error(`No extension point found with name ${name}`)
 
-  return extensionPoints[name].execute( input, exitOnError )
+  return extensionPoints[name].execute(input, exitOnError)
 }
 
 /**
@@ -61,9 +61,9 @@ module.exports.execute = ( name, input, exitOnError ) => {
  * @returns {Promise.<*>} Result of the last extension that was called
  * @alias extensionPoints.executeSerial
  */
-module.exports.executeSerial = ( name, input ) => {
-  if ( typeof extensionPoints[name] !== 'object' )
-    throw new Error( `No extension point found with name ${name}` )
+export function executeSerial(name, input) {
+  if (typeof extensionPoints[name] !== 'object')
+    throw new Error(`No extension point found with name ${name}`)
 
-  return extensionPoints[name].executeSerial( input )
+  return extensionPoints[name].executeSerial(input)
 }

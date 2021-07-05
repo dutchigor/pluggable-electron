@@ -1,6 +1,6 @@
-const fs = require( "fs" ),
-  path = require( "path" ),
-  { app } = require( "electron" )
+const fs = require("fs"),
+  path = require("path"),
+  { app } = require("electron")
 
 /**
  * @private
@@ -11,26 +11,22 @@ module.exports.pluginsPath = null
 /**
  * @private
  * Set pluginsPath and create the directory if it does not exist
- * @param {Directory} plgPath Path to the plugins folder
+ * @param {String} plgPath Path to the plugins folder
  */
 module.exports.setPluginsPath = plgPath => {
   // Create folder if it does not exist
-  if ( !plgPath ) plgPath = path.join( app.getPath( 'appData' ), app.getName(), 'plugins' )
-  if ( !fs.existsSync( plgPath ) ) fs.mkdirSync( plgPath )
-  
-  // Create plugins.json file if it does not exist
-  // const pluginsFile = path.join( plgPath, 'plugins.json' )
-  // if ( !fs.existsSync( pluginsFile ) )
-  //   fs.writeFileSync( pluginsFile, JSON.stringify( {} ), 'utf8' )
+  if (!plgPath) plgPath = path.join(app.getPath('appData'), app.getName(), 'plugins')
+  const plgDir = path.normalize(plgPath)
+  if (!fs.existsSync(plgDir)) fs.mkdirSync(plgDir)
 
-  this.pluginsPath = plgPath
+  this.pluginsPath = plgDir
 }
 
 /**
  * @private
  * Get the path to the plugins.json file
  */
-module.exports.getPluginsFile = () => path.join( this.pluginsPath, 'plugins.json' )
+module.exports.getPluginsFile = () => path.join(this.pluginsPath, 'plugins.json')
 
 // Register of installed plugins
 const plugins = {}
@@ -41,9 +37,9 @@ const plugins = {}
  * @returns {Plugin} Retrieved plugin
  * @alias register.getPlugin
  */
-module.exports.getPlugin = ( name ) => {
-  if ( !plugins.hasOwnProperty( name ) ) {
-    throw new Error( `Plugin ${name} does not exist` )
+module.exports.getPlugin = (name) => {
+  if (!plugins.hasOwnProperty(name)) {
+    throw new Error(`Plugin ${name} does not exist`)
   }
 
   return plugins[name]
@@ -54,7 +50,7 @@ module.exports.getPlugin = ( name ) => {
  * @returns {Array.<Plugin>} All plugin objects
  * @alias register.getAllPlugins
  */
-module.exports.getAllPlugins = () => Object.values( plugins )
+module.exports.getAllPlugins = () => Object.values(plugins)
 
 /**
  * Get list of active plugin objects
@@ -62,7 +58,7 @@ module.exports.getAllPlugins = () => Object.values( plugins )
  * @alias register.getActivePlugins
  */
 module.exports.getActivePlugins = () =>
-Object.values( plugins ).filter( plugin => plugin._active )
+  Object.values(plugins).filter(plugin => plugin._active)
 
 /**
  * @private
@@ -71,9 +67,9 @@ Object.values( plugins ).filter( plugin => plugin._active )
  * @param {boolean} persist Whether to save the changes to plugins to file
  * @returns {boolean} Whether the delete was successful
  */
-module.exports.removePlugin = ( name, persist = true ) => {
+module.exports.removePlugin = (name, persist = true) => {
   const del = delete plugins[name]
-  if ( persist ) this.persistPlugins()
+  if (persist) this.persistPlugins()
   return del
 }
 
@@ -84,9 +80,9 @@ module.exports.removePlugin = ( name, persist = true ) => {
  * @param {boolean} persist Whether to save the changes to plugins to file
  * @returns {void}
  */
-module.exports.addPlugin = ( plugin, persist = true ) => {
+module.exports.addPlugin = (plugin, persist = true) => {
   plugins[plugin.name] = plugin
-  if ( persist ) this.persistPlugins()
+  if (persist) this.persistPlugins()
 }
 
 /**
@@ -95,5 +91,5 @@ module.exports.addPlugin = ( plugin, persist = true ) => {
  * @returns {void}
  */
 module.exports.persistPlugins = () => {
-  fs.writeFileSync( this.getPluginsFile(), JSON.stringify( plugins ), 'utf8' )
+  fs.writeFileSync(this.getPluginsFile(), JSON.stringify(plugins), 'utf8')
 }

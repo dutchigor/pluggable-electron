@@ -9,7 +9,9 @@
     "extend",
     "extension"
   ],
-  "main": "lib/index.js",
+  "main": "plugins/index.js",
+  "module": "execution/index.js",
+  "preload": "facade/index.js",
   "files": [
     "lib/*"
   ],
@@ -21,7 +23,6 @@
   "license": "MIT",
   "dependencies": {
     "is-electron-renderer": "^2.0.1",
-    "mock-require": "^3.0.3",
     "pacote": "^11.2.7"
   },
   "devDependencies": {

@@ -1,5 +1,5 @@
-const pacote = require( "pacote" )
-const path = require( "path" )
+const pacote = require("pacote")
+const path = require("path")
 
 /**
  * @private
@@ -7,19 +7,20 @@ const path = require( "path" )
  */
 class Package {
   // See plugin for property definitions (to simplify documentation)
-  origin 
+  origin
   installOptions
   name
   version
   activationPoints
   dependencies
+  main
 
   /**
    * Set installOptions with defaults for options that have not been provided
    * @param {string} [origin] See {@link Plugin}
    * @param {Object} [options] See {@link Plugin}
    */
-  constructor( origin, options ) {
+  constructor(origin, options) {
     this.origin = origin
     const defaultOpts = {
       version: false,
@@ -30,12 +31,11 @@ class Package {
   }
 
   /**
-   * @private
    * Use NPM friendly package name
    * @returns {string} Package name with version number
    */
   get specifier() {
-    return this.origin + ( this.installOptions.version ? '@' + this.installOptions.version : '' )    
+    return this.origin + (this.installOptions.version ? '@' + this.installOptions.version : '')
   }
 
   /**
@@ -44,17 +44,18 @@ class Package {
    */
   async #getManifest() {
     // Get the package's manifest (package.json object)
-    const manifest = await pacote.manifest( this.specifier, this.installOptions )
+    const manifest = await pacote.manifest(this.specifier, this.installOptions)
 
     // If a valid manifest is found
-    if ( !manifest.name )
-      throw new Error( `The package ${this.origin} does not contain a valid manifest` )
+    if (!manifest.name)
+      throw new Error(`The package ${this.origin} does not contain a valid manifest`)
 
     // set the Package properties based on the it's manifest
     this.name = manifest.name
     this.version = manifest.version
     this.dependencies = manifest.dependencies || {}
     this.activationPoints = manifest.activationPoints || null
+    this.main = manifest.main
 
     return true
   }
@@ -65,13 +66,13 @@ class Package {
    * @returns {Promise.<boolean>} Resolves to true when the action completed
    * @private
    */
-  async _installPkg( installPath ) {
+  async _installPkg(installPath) {
 
     // import the manifest details
     await this.#getManifest()
 
     // Install the package in a child folder of the given folder
-    await pacote.extract( this.specifier, path.join( installPath, this.name), this.installOptions )
+    await pacote.extract(this.specifier, path.join(installPath, this.name), this.installOptions)
 
     return true
   }
@@ -82,17 +83,17 @@ class Package {
    * @returns {Promise.<boolean>} Resolves to true when the action completed
    * @private
    */
-  async _installDeps( modulesPath ) {
+  async _installDeps(modulesPath) {
     // Set dependencies to empty if it doesn't exist
-    const deps = ( typeof this.dependencies === 'object' ) ?
-      Object.entries( this.dependencies ) : []
+    const deps = (typeof this.dependencies === 'object') ?
+      Object.entries(this.dependencies) : []
 
     // Install dependencies and all descendant dependencies
-    for ( const [ name, version ] of deps ) {
-      const childPkg = new Package( name, this.installOptions )
+    for (const [name, version] of deps) {
+      const childPkg = new Package(name, this.installOptions)
       childPkg.installOptions.version = version
-      await childPkg._installPkg( modulesPath )
-      await childPkg._installDeps( modulesPath )
+      await childPkg._installPkg(modulesPath)
+      await childPkg._installDeps(modulesPath)
     }
     return true
   }
