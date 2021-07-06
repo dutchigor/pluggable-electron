@@ -34,19 +34,18 @@ export default class ExtensionPoint {
 
   /**
    * Execute (if callback) and return or just return (if object) the response for each extension registered to this extension point.
-   * @param {*} input Input to be provided as a parameter to each callback
-   * @param {boolean} exitOnError Whether to move to the next extension or stop if an error is encountered
-   * @returns {Promise.<Array>} Result of Promise.all or Promise.allSettled depending on exitOnError
+   * Any asynchronous responses will be executed in parallel and the returned array will contain a promise for each of these responses.
+   * @param {*} input Input to be provided as a parameter to each callback.
+   * @returns {Array} List of responses from the extensions.
    */
-  execute(input, exitOnError = true) {
-    const fn = exitOnError ? 'all' : 'allSettled'
-    return Promise[fn](this._extensions.map(p => {
+  execute(input) {
+    return this._extensions.map(p => {
       if (typeof p.response === 'function') {
         return p.response(input)
       } else {
         return p.response
       }
-    }))
+    })
   }
 
   /**

@@ -15,7 +15,7 @@ module.exports.pluginsPath = null
  */
 module.exports.setPluginsPath = plgPath => {
   // Create folder if it does not exist
-  if (!plgPath) plgPath = path.join(app.getPath('appData'), app.getName(), 'plugins')
+  // if (!plgPath) plgPath = path.join(app.getPath('appData'), app.getName(), 'plugins')
   const plgDir = path.normalize(plgPath)
   if (!fs.existsSync(plgDir)) fs.mkdirSync(plgDir)
 
