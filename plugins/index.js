@@ -1,6 +1,6 @@
 const fs = require("fs"),
-  { protocol } = require('electron')
-const path = require("path")
+  { protocol } = require('electron'),
+  path = require("path")
 
 const Plugin = require("./Plugin"),
   store = require("./store"),
@@ -23,10 +23,10 @@ exports.init = (useRendererFacade = true, pluginsPath) => {
 
   // perform full setup if pluginsPath is provided
   if (pluginsPath) {
-    return this.setupPlugins(pluginsPath)
+    return this.usePlugins(pluginsPath)
   }
 
-  return []
+  return {}
 
 }
 
@@ -46,36 +46,45 @@ const registerPluginProtocol = () => {
 /**
  * Set Pluggable Electron up to run from the pluginPath folder and
  * load plugins persisted in that folder
- * @param {string} [pluginsPath=<appData>/plugins] Optional path to the plugins folder
+ * @param {string} [pluginsPath] Path to the plugins folder. Required if not yet set up.
  * @returns {Promise.<Array.<Plugin>>} A list of active plugins
  */
-exports.setupPlugins = (pluginsPath) => {
-  // Store the path to the plugins folder
-  store.setPluginsPath(pluginsPath)
+exports.usePlugins = (pluginsPath) => {
+  if (!pluginsPath && !store.pluginsPath) throw Error('A path to the plugins folder is required to use Pluggable Electron')
+  if (pluginsPath) {
+    // Store the path to the plugins folder
+    store.setPluginsPath(pluginsPath)
 
-  // Remove any registered plugins
-  for (const plugin of store.getAllPlugins()) {
-    store.removePlugin(plugin.name, false)
-  }
-
-  // Read plugin list from plugins folder
-  if (fs.existsSync(store.getPluginsFile())) {
-    const plugins = JSON.parse(fs.readFileSync(store.getPluginsFile()))
-    try {
-      // Create a Plugin instance for each plugin in list
-      for (const p in plugins) {
-        loadPlugin(plugins[p])
-      }
-      store.persistPlugins()
-
-    } catch (error) {
-      // Throw meaningful error if plugin loading fails
-      throw new Error('Could not successfully rebuild list of installed plugins. Please check the plugins.json file in the plugins folder')
+    // Remove any registered plugins
+    for (const plugin of store.getAllPlugins()) {
+      store.removePlugin(plugin.name, false)
     }
 
-    // Return a list of all plugins to be activated in the client
+    // Read plugin list from plugins folder
+    if (fs.existsSync(store.getPluginsFile())) {
+      const plugins = JSON.parse(fs.readFileSync(store.getPluginsFile()))
+      try {
+        // Create a Plugin instance for each plugin in list
+        for (const p in plugins) {
+          loadPlugin(plugins[p])
+        }
+        store.persistPlugins()
+
+      } catch (error) {
+        // Throw meaningful error if plugin loading fails
+        throw new Error('Could not successfully rebuild list of installed plugins. Please check the plugins.json file in the plugins folder')
+      }
+    }
+
+    // Return the plugin lifecycle functions
   }
-  return store.getActivePlugins()
+  return {
+    installPlugin,
+    getPlugin: store.getPlugin,
+    getAllPlugins: store.getAllPlugins,
+    getActivePlugins: store.getActivePlugins,
+
+  }
 }
 
 /**
@@ -107,18 +116,9 @@ const loadPlugin = (plg) => {
  * @param {string} spec The specifier used to locate the package (from NPM or local file)
  * @param {Object} [options] Optional options passed to pacote to fetch the manifest
  * @returns {Plugin} New plugin
+ * @alias pluginManager.installPlugin
  */
-exports.installPlugin = async (spec, options) => {
+const installPlugin = async (spec, options) => {
   const plugin = new Plugin(spec, options)
   return await plugin._install()
-}
-
-/**
- * Provides access to the plugins stored by Pluggable Electron
- * @namespace register
- */
-exports.register = {
-  getPlugin: store.getPlugin,
-  getAllPlugins: store.getAllPlugins,
-  getActivePlugins: store.getActivePlugins,
 }

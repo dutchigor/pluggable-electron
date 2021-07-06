@@ -1,6 +1,12 @@
+/**
+ * Provides access to the plugins stored by Pluggable Electron
+ * @namespace pluginManager
+ */
+
+
 const fs = require("fs"),
-  path = require("path"),
-  { app } = require("electron")
+  path = require("path") //,
+// { app } = require("electron")
 
 /**
  * @private
@@ -15,10 +21,17 @@ module.exports.pluginsPath = null
  */
 module.exports.setPluginsPath = plgPath => {
   // Create folder if it does not exist
-  // if (!plgPath) plgPath = path.join(app.getPath('appData'), app.getName(), 'plugins')
-  const plgDir = path.normalize(plgPath)
-  if (!fs.existsSync(plgDir)) fs.mkdirSync(plgDir)
+  //plgPath = path.join(app.getPath('appData'), app.getName(), 'plugins')
+  let plgDir
+  try {
+    plgDir = path.normalize(plgPath)
+    if (plgDir.length < 2) throw new Error()
 
+  } catch (error) {
+    throw new Error('Invalid path provided to the plugins folder')
+  }
+
+  if (!fs.existsSync(plgDir)) fs.mkdirSync(plgDir)
   this.pluginsPath = plgDir
 }
 
@@ -35,7 +48,7 @@ const plugins = {}
  * Get a plugin from the stored plugins
  * @param {string} name Name of the plugin to retrieve
  * @returns {Plugin} Retrieved plugin
- * @alias register.getPlugin
+ * @alias pluginManager.getPlugin
  */
 module.exports.getPlugin = (name) => {
   if (!plugins.hasOwnProperty(name)) {
@@ -48,14 +61,14 @@ module.exports.getPlugin = (name) => {
 /**
  * Get list of all plugin objects
  * @returns {Array.<Plugin>} All plugin objects
- * @alias register.getAllPlugins
+ * @alias pluginManager.getAllPlugins
  */
 module.exports.getAllPlugins = () => Object.values(plugins)
 
 /**
  * Get list of active plugin objects
  * @returns {Array.<Plugin>} Active plugin objects
- * @alias register.getActivePlugins
+ * @alias pluginManager.getActivePlugins
  */
 module.exports.getActivePlugins = () =>
   Object.values(plugins).filter(plugin => plugin._active)
