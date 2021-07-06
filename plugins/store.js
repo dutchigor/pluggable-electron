@@ -3,7 +3,6 @@
  * @namespace pluginManager
  */
 
-
 const fs = require("fs"),
   path = require("path") //,
 // { app } = require("electron")
@@ -106,3 +105,11 @@ module.exports.addPlugin = (plugin, persist = true) => {
 module.exports.persistPlugins = () => {
   fs.writeFileSync(this.getPluginsFile(), JSON.stringify(plugins), 'utf8')
 }
+
+/**
+ * This function is executed when a plugin is installed to verify that the user indeed wants to install the plugin.
+ * @callback confirmInstall
+ * @param {string} plg The specifier used to locate the package (from NPM or local file)
+ * @returns {boolean} Whether to proceed with the plugin installation
+ */
+module.exports.confirmInstall = plg => false

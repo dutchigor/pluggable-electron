@@ -14,8 +14,10 @@ let active = false
 module.exports = () => {
   if (active) return
   // Register IPC route to install a plugin
-  ipcMain.handle('pluggable:install', (e, plg, options, activate = true) => {
+  ipcMain.handle('pluggable:install', async (e, plg, options, activate = true) => {
     checkPluginsPath()
+    const conf = await store.confirmInstall(plg)
+    if (!conf) return { cancelled: true }
     const plugin = new Plugin(plg, options)
     plugin.setActive(activate)
     return plugin._install()

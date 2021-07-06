@@ -19,7 +19,7 @@ const { ipcRenderer } = require("electron")
  *     See [npm-install]{@link https://docs.npmjs.com/cli/v6/commands/npm-install}.
  * @param {Object} [options] The options passed to pacote to fetch the manifest, including version.
  * @param {boolean} [activate=true] Whether the plugin should be activated on install.
- * @returns {Promise.<plugin>} plugin as defined by the main process.
+ * @returns {Promise.<plugin>} plugin as defined by the main process. Has property cancelled set to true if installation was cancelled in the main process.
  * @alias facade.install
  */
 exports.install = (spec, options, activate) =>

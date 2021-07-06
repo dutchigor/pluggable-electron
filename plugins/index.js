@@ -9,14 +9,20 @@ const Plugin = require("./Plugin"),
 /**
  * Sets up the required communication between the main and renderer processes.
  * Additionally sets the plugins up using {@link setupPlugins} if a pluginsPath is provided.
- * @param {boolean} [useRendererFacade=true] Whether to make a facade to the plugins available in the renderer.
+ * @param {confirmInstall} facade.confirmInstall Function to validate that a plugin should be installed. 
+ * @param {Object} facade configuration for setting up the renderer facade.
+ * @param {Boolean} [facade.use=true] Whether to make a facade to the plugins available in the renderer.
  * @param {string} [pluginsPath] Optional path to the plugins folder.
  * @returns {Promise.<Array.<Plugin>>} A list of active plugins.
  * @function
  */
-exports.init = (useRendererFacade = true, pluginsPath) => {
-  // Enable IPC to be used by the renderer facade if this option is enabled
-  if (useRendererFacade) router()
+exports.init = (facade, pluginsPath) => {
+  if (!facade.hasOwnProperty('use') || facade.use) {
+    // Store the confirmInstall function
+    store.confirmInstall = facade.confirmInstall
+    // Enable IPC to be used by the facade
+    router()
+  }
 
   // Create plugins protocol to serve plugins to renderer
   registerPluginProtocol()
