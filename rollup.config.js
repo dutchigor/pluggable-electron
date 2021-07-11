@@ -7,22 +7,25 @@ export default [{
       file: 'dist/execution.umd.js',
       format: 'umd',
       name: 'pluggableElectron',
+      exports: "named",
     },
     {
       file: 'dist/execution.umd.min.js',
       format: 'umd',
       name: 'pluggableElectron',
-      plugins: [terser()]
+      plugins: [terser()],
+      exports: "named",
     },
     {
       file: 'dist/execution.es.js',
       format: 'es',
+      exports: "named",
     },
     {
       file: 'dist/execution.es.min.js',
       format: 'es',
-      plugins: [terser()]
-    }
-
+      plugins: [terser()],
+      exports: "named",
+    },
   ]
 }];
