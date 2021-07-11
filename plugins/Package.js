@@ -77,26 +77,26 @@ class Package {
     return true
   }
 
-  /**
-   * Install all packages specified as dependencies in modulesPath
-   * @param {string} modulesPath Path to the node_modules folder to install the package in
-   * @returns {Promise.<boolean>} Resolves to true when the action completed
-   * @private
-   */
-  async _installDeps(modulesPath) {
-    // Set dependencies to empty if it doesn't exist
-    const deps = (typeof this.dependencies === 'object') ?
-      Object.entries(this.dependencies) : []
+  // /**
+  //  * Install all packages specified as dependencies in modulesPath
+  //  * @param {string} modulesPath Path to the node_modules folder to install the package in
+  //  * @returns {Promise.<boolean>} Resolves to true when the action completed
+  //  * @private
+  //  */
+  // async _installDeps(modulesPath) {
+  //   // Set dependencies to empty if it doesn't exist
+  //   const deps = (typeof this.dependencies === 'object') ?
+  //     Object.entries(this.dependencies) : []
 
-    // Install dependencies and all descendant dependencies
-    for (const [name, version] of deps) {
-      const childPkg = new Package(name, this.installOptions)
-      childPkg.installOptions.version = version
-      await childPkg._installPkg(modulesPath)
-      await childPkg._installDeps(modulesPath)
-    }
-    return true
-  }
+  //   // Install dependencies and all descendant dependencies
+  //   for (const [name, version] of deps) {
+  //     const childPkg = new Package(name, this.installOptions)
+  //     childPkg.installOptions.version = version
+  //     await childPkg._installPkg(modulesPath)
+  //     await childPkg._installDeps(modulesPath)
+  //   }
+  //   return true
+  // }
 }
 
 module.exports = Package

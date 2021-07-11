@@ -39,9 +39,9 @@ class Plugin extends Package {
       this.url = `plugin://${this.name}/${this.main}`
 
       // Install all the plugin dependencies in the plugin's node_modules folder
-      var modulesPath = path.join(this.name, 'node_modules')
-      fs.rmdirSync(modulesPath, { recursive: true })
-      await this._installDeps(modulesPath)
+      // var modulesPath = path.join(store.pluginsPath, this.name, 'node_modules')
+      // fs.rmdirSync(modulesPath, { recursive: true })
+      // await this._installDeps(modulesPath)
 
       if (addToStore) store.addPlugin(this)
 
