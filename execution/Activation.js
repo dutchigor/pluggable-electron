@@ -10,13 +10,15 @@ export default class Activation {
    * @param {string} plugin Name of the registered plugin.
    * @param {string} activationPoint Name of the activation point that is registered to.
    * @param {string} url location of the file containing the activation function.
+   * @param {importer} importer Used to import the entry point.
    * @param {boolean} activated Whether the activation has been activated.
    * @returns {void}
    */
-  constructor(plugin, activationPoint, url) {
+  constructor(plugin, activationPoint, url, importer) {
     this.plugin = plugin
     this.activationPoint = activationPoint
     this.url = url
+    this.importer = importer
     this.activated = false
   }
 
@@ -29,7 +31,7 @@ export default class Activation {
   async trigger(passEps) {
     if (!this.activated) {
       try {
-        const main = await import(this.url)
+        const main = await this.importer(this.url)
         const extensionPoints = passEps ? getEPs() : null
         main[this.activationPoint](extensionPoints)
         this.activated = true
