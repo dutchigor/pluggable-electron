@@ -10,7 +10,7 @@
     "extension"
   ],
   "main": "plugins/index.js",
-  "module": "execution/index.js",
+  "module": "dist/execution.es.js",
   "preload": "facade/index.js",
   "files": [
     "lib/*"
