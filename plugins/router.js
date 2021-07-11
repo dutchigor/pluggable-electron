@@ -41,7 +41,7 @@ module.exports = () => {
   // Register IPC route to get the list of active plugins
   ipcMain.handle('pluggable:getActivePlugins', () => {
     checkPluginsPath()
-    store.getActivePlugins()
+    return store.getActivePlugins()
   })
 
   // Register IPC route to toggle the active state of a plugin
