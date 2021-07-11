@@ -9,8 +9,8 @@ const Plugin = require("./Plugin"),
 /**
  * Sets up the required communication between the main and renderer processes.
  * Additionally sets the plugins up using {@link setupPlugins} if a pluginsPath is provided.
- * @param {confirmInstall} facade.confirmInstall Function to validate that a plugin should be installed. 
  * @param {Object} facade configuration for setting up the renderer facade.
+ * @param {confirmInstall} facade.confirmInstall Function to validate that a plugin should be installed. 
  * @param {Boolean} [facade.use=true] Whether to make a facade to the plugins available in the renderer.
  * @param {string} [pluginsPath] Optional path to the plugins folder.
  * @returns {Promise.<Array.<Plugin>>} A list of active plugins.

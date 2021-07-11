@@ -42,15 +42,14 @@ export function get(eps) {
  * Call this at the point in the base code where you want it to be extended.
  * @param {string} name Name of the extension point to call
  * @param {*} input Parameter to provide to the extensions if they are a function
- * @param {boolean} exitOnError Whether to move to the next extension or stop if an error is encountered
  * @returns {Array} Result of Promise.all or Promise.allSettled depending on exitOnError
  * @alias extensionPoints.execute
  */
-export function execute(name, input, exitOnError) {
+export function execute(name, input) {
   if (typeof extensionPoints[name] !== 'object')
     throw new Error(`No extension point found with name ${name}`)
 
-  return extensionPoints[name].execute(input, exitOnError)
+  return extensionPoints[name].execute(input)
 }
 
 /**
