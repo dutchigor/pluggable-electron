@@ -27,5 +27,16 @@ export default [{
       plugins: [terser()],
       exports: "named",
     },
+    {
+      file: 'dist/execution.cjs.js',
+      format: 'cjs',
+      exports: "named",
+    },
+    {
+      file: 'dist/execution.cjs.min.js',
+      format: 'cjs',
+      plugins: [terser()],
+      exports: "named",
+    },
   ]
 }];

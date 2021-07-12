@@ -9,9 +9,10 @@
     "extend",
     "extension"
   ],
-  "main": "plugins/index.js",
-  "module": "dist/execution.es.js",
+  "main": "dist/execution.cjs.min.js",
+  "module": "dist/execution.es.min.js",
   "preload": "facade/index.js",
+  "pluginMgr": "pluginMgr/index.js",
   "files": [
     "lib/*"
   ],

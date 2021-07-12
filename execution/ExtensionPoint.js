@@ -6,8 +6,6 @@
  * @property {string} name Name of the extension point
 */
 export default class ExtensionPoint {
-  _extensions
-
   constructor(name) {
     this.name = name
     this._extensions = []
