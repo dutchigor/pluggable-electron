@@ -30,14 +30,14 @@ export default class Activation {
    */
   async trigger(passEps) {
     if (!this.activated) {
-      try {
-        const main = await this.importer(this.url)
-        const extensionPoints = passEps ? getEPs() : null
-        main[this.activationPoint](extensionPoints)
-        this.activated = true
-      } catch {
-        console.error(`Plugin ${this.plugin} does not exist or does not contain an activation function for ${this.activationPoint}`)
-      }
+      // try {
+      const main = await this.importer(this.url, this.plugin)
+      const extensionPoints = passEps ? getEPs() : null
+      main[this.activationPoint](extensionPoints)
+      this.activated = true
+      // } catch {
+      //   console.error(`Plugin ${this.plugin} does not exist or does not contain an activation function for ${this.activationPoint}`)
+      // }
     }
     return this.activated
   }
