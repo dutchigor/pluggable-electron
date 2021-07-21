@@ -39,6 +39,9 @@ const activationRegister = []
  */
 export function register(plugin) {
   if (!importer) throw new Error('Importer callback has not been set')
+  if (!Array.isArray(plugin.activationPoints)) throw new Error(
+    `Plugin ${plugin.name || 'without name'} does not have any activation points set up in its manifest.`
+  )
   for (const ep of plugin.activationPoints) {
     // Ensure plugin is not already registered to activation point
     const duplicate = activationRegister.findIndex(act =>
