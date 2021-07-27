@@ -1,4 +1,4 @@
-import { get as getEPs } from "./extension-manager.js"
+import { get as getEPs, register as registerEP } from "./extension-manager.js"
 
 /**
  * A representation of a plugin's registration to an activation point
@@ -25,19 +25,15 @@ export default class Activation {
   /**
    * Trigger the activation function in the plugin once,
    * providing the list of extension points as input.
-   * @param {boolean} passEps Whether to include the extension points as a parameter in the trigger.
+   * @param {boolean} presetEPs Whether the Extension Points have been predefined or can be created on the fly.
    * @returns {boolean} Whether the activation has been activated.
    */
-  async trigger(passEps) {
+  async trigger(presetEPs) {
     if (!this.activated) {
-      // try {
       const main = await this.importer(this.url, this.plugin)
-      const extensionPoints = passEps ? getEPs() : null
-      main[this.activationPoint](extensionPoints)
+      const epRegister = presetEPs ? getEPs() : registerEP
+      main[this.activationPoint](epRegister)
       this.activated = true
-      // } catch {
-      //   console.error(`Plugin ${this.plugin} does not exist or does not contain an activation function for ${this.activationPoint}`)
-      // }
     }
     return this.activated
   }

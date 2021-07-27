@@ -23,6 +23,20 @@ export function add(name) {
 }
 
 /**
+ * Create extension point if it does not exist and then register the given extension to it.
+ * @param {String} name Name of the extension point
+ * @param {String} extension Unique name for the extension
+ * @param {Object|Callback} response Object to be returned or function to be called by the extension point.
+ * @param {Number} priority Order priority for execution used for executing in serial.
+ * @returns {void}
+ * @alias extensionPoints.register
+ */
+export function register(name, extension, response, priority) {
+  if (!extensionPoints.hasOwnProperty(name)) add(name)
+  extensionPoints[name].register(extension, response, priority)
+}
+
+/**
  * Fetch extension points by name, or all if no names are provided.
  * @param {Array.<string>} eps List of names of extension points to fetch
  * @returns {Array.<ExtensionPoint>} Found extension points

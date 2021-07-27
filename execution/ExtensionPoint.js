@@ -15,9 +15,9 @@ export default class ExtensionPoint {
    * Register new extension with this extension point.
    * The registered response will be executed (for callback) or returned (for object) 
    * when the extension point is executed (see below).
-   * @param {string} name Unique name for the extension
+   * @param {String} name Unique name for the extension
    * @param {Object|Callback} response Object to be returned or function to be called by the extension point.
-   * @param {number} priority Order priority for execution used for executing in serial.
+   * @param {Number} priority Order priority for execution used for executing in serial.
    * @returns {void}
    */
   register(name, response, priority = 0) {
