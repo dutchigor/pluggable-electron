@@ -9,7 +9,8 @@
     "extend",
     "extension"
   ],
-  "main": "dist/execution.es.js",
+  "main": "pluginMgr/index.js",
+  "module": "dist/execution.es.js",
   "preload": "facade/index.js",
   "pluginMgr": "pluginMgr/index.js",
   "files": [
