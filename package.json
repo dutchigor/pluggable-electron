@@ -24,15 +24,15 @@
   "license": "MIT",
   "dependencies": {
     "is-electron-renderer": "^2.0.1",
-    "pacote": "^11.2.7"
+    "pacote": "^11.3.5"
   },
   "devDependencies": {
     "jsdoc-to-markdown": "^7.0.1",
-    "rollup": "^2.52.8",
+    "rollup": "^2.54.0",
     "rollup-plugin-terser": "^7.0.2"
   },
   "peerDependencies": {
-    "electron": "10 - 13"
+    "electron": "13.x"
   },
   "bugs": {
     "url": "https://github.com/dutchigor/pluggable-electron/issues"
