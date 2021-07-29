@@ -14,7 +14,9 @@
   "preload": "facade/index.js",
   "pluginMgr": "pluginMgr/index.js",
   "files": [
-    "lib/*"
+    "facade/*",
+    "pluginMgr/*",
+    "dist/*"
   ],
   "scripts": {
     "docs": "node docs/genDocs.js",
