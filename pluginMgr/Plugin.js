@@ -6,24 +6,25 @@ const Package = require("./Package"),
   store = require("./store")
 
 /** 
- * An NPM package that can be used as a Pluggable Electron plugin
+ * An NPM package that can be used as a Pluggable Electron plugin.
+ * Used to hold all the information and functions necessary to handle the plugin lifecycle.
  * @extends Package
  * @property {string} origin Original specification provided to fetch the package.
  * @property {Object} installOptions Options provided to pacote when fetching the manifest.
- * @property {name} The name of the plugin as defined in the manifest.
+ * @property {name} name The name of the plugin as defined in the manifest.
  * @property {string} url Electron URL where the package can be accessed.
  * @property {string} version Version of the package as defined in the manifest.
- * @property {Array<string>} activationPoints List of activation points. @see Activation .
+ * @property {Array<string>} activationPoints List of {@link ./Execution-API#activationPoints|activation points}.
  * @property {Array<{ package: string }>} dependencies A list of dependencies as defined in the manifest.
- * @property {string} main The entry point as defined in the main entry of the manifest
+ * @property {string} main The entry point as defined in the main entry of the manifest.
  */
 class Plugin extends Package {
   _active = false
   _toUninstall = false
 
   /**
-   * Extract plugin to plugins folder and all dependencies in a node_modules folder
-   * @param {boolean} addToStore Whether to add the installed plugin to the store 
+   * Extract plugin to plugins folder.
+   * @param {boolean} [addToStore=true] Whether to add the installed plugin to the store 
    * @returns {Promise.<Plugin>} This plugin
    * @private
    */
@@ -55,7 +56,7 @@ class Plugin extends Package {
   }
 
   /**
-   * Check for updates and install if available
+   * Check for updates and install if available.
    * @returns {Plugin} This plugin
    */
   async update() {

@@ -1,0 +1,10 @@
+# API definition for using Pluggable Electron in the main process
+
+Managing the Pluggable Electron plugin registry and handling the plugin files is done using the plugin manager in the
+main process. Files are stored and the registry is persisted in a plugin folder provided by the consumer.
+[Initialise](#init) the plugin to load the registry from file with the init function.
+
+The plugin manager can be imported in the main process by requiring pluggable electron. E.g. `const pe =
+require("pluggable-electron")`
+
+{{>main}}

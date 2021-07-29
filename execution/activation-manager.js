@@ -1,27 +1,32 @@
 import Activation from "./Activation.js"
 
 /**
- * This object contains a register of activations and the means to work with it
- * @namespace activation
+ * This object contains a register of plugin registrations to an activation points, and the means to work with them.
+ * @namespace activationPoints
  */
 
 /**
- * @callback importer Used to import a plugin entry point.
+ * Used to import a plugin entry point.
  * Ensure your bundler does no try to resolve this import as the plugins are not known at build time.
- * @param {string} entryPoint File to be imported 
+ * @callback activation~importer
+ * @param {string} entryPoint File to be imported.
+ * @returns {module} The module containing the entry point function.
  */
 
 /**
+ * @private
  * Store setup options
  */
 let importer
 let presetEPs
 
 /**
- * Set the renderer options for pluggable electron.
+ * Set the renderer options for Pluggable Electron. Should be called before any other Pluggable Electron function in the renderer
  * @param {Object} options
- * @param {importer} options.importer The callback function used to import the plugin entry points.
+ * @param {activation~importer} options.importer The callback function used to import the plugin entry points.
  * @param {Boolean} [options.presetEPs=false] Whether the Extension Points have been predefined or can be created on the fly.
+ * @returns {void}
+ * @alias activationPoints.setup
  */
 export function setup(options) {
   importer = options.importer
@@ -36,10 +41,10 @@ export function setup(options) {
 const activationRegister = []
 
 /**
- * Register the activation points for a plugin.
+ * Register a plugin with its activation points (as defined in its manifest).
  * @param {plugin} plugin plugin object as provided by the main process.
  * @returns {void}
- * @alias activation.register
+ * @alias activationPoints.register
  */
 export function register(plugin) {
   if (!importer) throw new Error('Importer callback has not been set')
@@ -62,7 +67,7 @@ export function register(plugin) {
  * This will call the function with the same name as the activation point on the path specified in the plugin.
  * @param {string} activationPoint Name of the activation to trigger
  * @returns {void}
- * @alias activation.trigger
+ * @alias activationPoints.trigger
  */
 export function trigger(activationPoint) {
   activationRegister.forEach(act => {

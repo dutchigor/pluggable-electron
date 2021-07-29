@@ -1,11 +1,10 @@
 /**
  * Represents a point in the consumer's code that can be extended by a plugin.
- * An object containing all extension points should be required by a plugin when the activation function is triggered.
- * The plugin can use this to register a callback or object to the extension point.
+ * The plugin can register a callback or object to the extension point.
  * When the extension point is triggered, the provided function will then be called or object will be returned.
  * @property {string} name Name of the extension point
 */
-export default class ExtensionPoint {
+class ExtensionPoint {
   constructor(name) {
     this.name = name
     this._extensions = []
@@ -13,11 +12,11 @@ export default class ExtensionPoint {
 
   /**
    * Register new extension with this extension point.
-   * The registered response will be executed (for callback) or returned (for object) 
+   * The registered response will be executed (if callback) or returned (if object) 
    * when the extension point is executed (see below).
-   * @param {String} name Unique name for the extension
+   * @param {String} name Unique name for the extension.
    * @param {Object|Callback} response Object to be returned or function to be called by the extension point.
-   * @param {Number} priority Order priority for execution used for executing in serial.
+   * @param {Number} [priority] Order priority for execution used for executing in serial.
    * @returns {void}
    */
   register(name, response, priority = 0) {
@@ -33,7 +32,7 @@ export default class ExtensionPoint {
   /**
    * Execute (if callback) and return or just return (if object) the response for each extension registered to this extension point.
    * Any asynchronous responses will be executed in parallel and the returned array will contain a promise for each of these responses.
-   * @param {*} input Input to be provided as a parameter to each callback.
+   * @param {*} input Input to be provided as a parameter to each response if response is a callback.
    * @returns {Array} List of responses from the extensions.
    */
   execute(input) {
@@ -65,3 +64,5 @@ export default class ExtensionPoint {
     }, input)
   }
 }
+
+export default ExtensionPoint

@@ -31,7 +31,8 @@ class Package {
   }
 
   /**
-   * Use NPM friendly package name
+   * @private
+   * NPM friendly package name
    * @returns {string} Package name with version number
    */
   get specifier() {

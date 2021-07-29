@@ -8,12 +8,12 @@ const Plugin = require("./Plugin"),
 
 /**
  * Sets up the required communication between the main and renderer processes.
- * Additionally sets the plugins up using {@link setupPlugins} if a pluginsPath is provided.
+ * Additionally sets the plugins up using {@link usePlugins} if a pluginsPath is provided.
  * @param {Object} facade configuration for setting up the renderer facade.
  * @param {confirmInstall} facade.confirmInstall Function to validate that a plugin should be installed. 
  * @param {Boolean} [facade.use=true] Whether to make a facade to the plugins available in the renderer.
  * @param {string} [pluginsPath] Optional path to the plugins folder.
- * @returns {Promise.<Array.<Plugin>>} A list of active plugins.
+ * @returns {pluginManager} A set of functions used to manage the plugin lifecycle.
  * @function
  */
 exports.init = (facade, pluginsPath) => {
@@ -38,7 +38,7 @@ exports.init = (facade, pluginsPath) => {
 
 /**
  * @private
- * Create plugins protocol to serve plugins to renderer
+ * Create plugins protocol to provide plugins to renderer
  * @returns {boolean} Whether the protocol registration was successful
  */
 const registerPluginProtocol = () => {
@@ -50,10 +50,10 @@ const registerPluginProtocol = () => {
 }
 
 /**
- * Set Pluggable Electron up to run from the pluginPath folder and
- * load plugins persisted in that folder
+ * Set Pluggable Electron up to run from the pluginPath folder if it is provided and
+ * load plugins persisted in that folder. Will just return the plugin lifecycle functions if no pluginsPath is provided.
  * @param {string} [pluginsPath] Path to the plugins folder. Required if not yet set up.
- * @returns {Promise.<Array.<Plugin>>} A list of active plugins
+ * @returns {pluginManager} A set of functions used to manage the plugin lifecycle.
  */
 exports.usePlugins = (pluginsPath) => {
   if (!pluginsPath && !store.pluginsPath) throw Error('A path to the plugins folder is required to use Pluggable Electron')
@@ -70,7 +70,7 @@ exports.usePlugins = (pluginsPath) => {
     if (fs.existsSync(store.getPluginsFile())) {
       const plugins = JSON.parse(fs.readFileSync(store.getPluginsFile()))
       try {
-        // Create a Plugin instance for each plugin in list
+        // Create and store a Plugin instance for each plugin in list
         for (const p in plugins) {
           loadPlugin(plugins[p])
         }
@@ -85,19 +85,18 @@ exports.usePlugins = (pluginsPath) => {
     // Return the plugin lifecycle functions
   }
   return {
-    installPlugin,
+    installPlugin: store.installPlugin,
     getPlugin: store.getPlugin,
     getAllPlugins: store.getAllPlugins,
     getActivePlugins: store.getActivePlugins,
-
   }
 }
 
 /**
  * @private
- * Check the give plugin object. If it is marked for uninstalling, the plugin files are removed.
+ * Check the given plugin object. If it is marked for uninstalling, the plugin files are removed.
  * Otherwise a Plugin instance for the provided object is created and added to the store.
- * @param {Object} plg Simple plugin
+ * @param {Object} plg Plugin info
  */
 const loadPlugin = (plg) => {
   if (plg._toUninstall) {
@@ -115,16 +114,4 @@ const loadPlugin = (plg) => {
 
     store.addPlugin(plugin, false)
   }
-}
-
-/**
- * Create and install a new plugin for the given specifier
- * @param {string} spec The specifier used to locate the package (from NPM or local file)
- * @param {Object} [options] Optional options passed to pacote to fetch the manifest
- * @returns {Plugin} New plugin
- * @alias pluginManager.installPlugin
- */
-const installPlugin = async (spec, options) => {
-  const plugin = new Plugin(spec, options)
-  return await plugin._install()
 }

@@ -4,7 +4,7 @@ import { get as getEPs, register as registerEP } from "./extension-manager.js"
  * A representation of a plugin's registration to an activation point
  * @private
  */
-export default class Activation {
+class Activation {
   /**
    * Create an activation
    * @param {string} plugin Name of the registered plugin.
@@ -24,9 +24,9 @@ export default class Activation {
 
   /**
    * Trigger the activation function in the plugin once,
-   * providing the list of extension points as input.
+   * providing the list of extension points or extension point register function as input.
    * @param {boolean} presetEPs Whether the Extension Points have been predefined or can be created on the fly.
-   * @returns {boolean} Whether the activation has been activated.
+   * @returns {boolean} Whether the activation has already been activated.
    */
   async trigger(presetEPs) {
     if (!this.activated) {
@@ -38,3 +38,5 @@ export default class Activation {
     return this.activated
   }
 }
+
+export default Activation

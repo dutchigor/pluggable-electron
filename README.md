@@ -4,12 +4,21 @@
 <!-- PROJECT LOGO -->
 
 <!-- TABLE OF CONTENTS -->
-<!-- TOC depthfrom:2 depthto:2 -->
+<!-- TOC depthfrom:2 depthto:3 -->
 
 * [What is Pluggable Electron](#what-is-pluggable-electron)
+  * [:heavy_exclamation_mark: Notice :heavy_exclamation_mark:](#heavy_exclamation_mark-notice-heavy_exclamation_mark)
 * [Introduction](#introduction)
 * [Getting Started](#getting-started)
+  * [Prerequisites](#prerequisites)
+  * [Installation](#installation)
 * [Usage](#usage)
+  * [Extension points](#extension-points)
+  * [Registering extensions](#registering-extensions)
+  * [Creating plugins](#creating-plugins)
+  * [Installing plugins](#installing-plugins)
+  * [End result](#end-result)
+  * [Further functionality](#further-functionality)
 * [Roadmap](#roadmap)
 * [Contributing](#contributing)
 * [License](#license)
@@ -49,29 +58,46 @@ npm install pluggable-electron
 
 ## Usage
 
+Below you wil find a quick start guide on how to set Pluggable Electron up. A full guide can be found in the [wiki](github.com/dutchigor/pluggable-electron/wiki)
+
 The framework is built around the concepts of Extension points and Plugins
 
 ### Extension points
-Extension points are added to your [renderer](https://www.electronjs.org/docs/tutorial/quick-start#application-architecture) code. Start by adding extension points to the renderer process.
+Extension points are added to your [renderer](https://www.electronjs.org/docs/tutorial/quick-start#application-architecture) code.
 
+Execute extension point where you want to provide plugin developers with the possibility to extend your code. This can be done as a handover, parallel execution, or serial execution. These options are explained [here](https://github.com/dutchigor/pluggable-electron/wiki#defining-and-triggering-extension-points).
 ```javascript
-// renderer.js
-const pe = require( "pluggable-electron" )
-
-// Initiate Pluggable Electron using Plugins Facade
-pe.init( true )
-
-// Create extension point
-pe.extensionPoints.add( 'purchase_menu' )
-```
-Then execute this extension point where you want to extend your code. This can be done as a handover, parallel execution, or serial execution. These options are explained [here](https://github.com/dutchigor/pluggable-electron/wiki#defining-and-triggering-extension-points).
-```javascript
-// your-module.js
-const pe = require( "pluggable-electron" )
+// renderer/your-module.js
+import { extensionPoints } from "pluggable-electron"
 
 // ... Your business logic ...
-const extendMenu = await pe.extensionPoints.execute('purchase_menu', purchaseMenu )
+const extendMenu = extensionPoints.execute('purchase_menu', purchaseMenu )
 // extendMenu will contain the result of any extensions registered to purchase_menu
+```
+
+### Registering extensions
+To determine the extensions that need to be executed by an extension point, it needs to be possible for plugins to register to an extension. This is done by creating activation points which are the points where plugins are activated. On activation, a plugin can register functions or objects to extension points (see below). Creating an activation point requires the activation point manager needs to be set up.
+
+There can be different strategies for activating the plugin, like:
+* Activating all plugins during startup - one point during the app startup for synchronous extensions and one after startup for async extensions
+* Activating the relevant plugins just before an extension point is triggered.
+
+See the API for the activation point manager [here](https://github.com/dutchigor/pluggable-electron/wiki/Execution-API#activation).
+
+
+```js
+// renderer/index.js
+import { activationPoints } from "pluggable-electron"
+
+// Enable the activation points
+activationPoints.setup({
+  // Provide the import function
+  importer: async (pluginPath) => import( /* webpackIgnore: true */ pluginPath)
+})
+
+// insert at any point
+activationPoints.trigger( 'init' )
+// but before related extension points are triggered.
 ```
 
 ### Creating plugins
@@ -87,64 +113,86 @@ A plugin is an npm package with activation points added to the package.json.
    ...
 }
 ```
-The main file of this plugin should include a function by the name of the activation point. This function will be be triggered by the activation point with the list of available extension points (as created above) as a parameter. Extensions can be registered to the extension points using this list. An extension can be a callback or object returned to the register method.
+The main file of this plugin should include a function by the name of the activation point. This function will be be triggered by the activation point and be passed a function to register extensions to extension points by default. An extension can be a callback or object returned to the register method.
 ```javascript
 // index.js
-module.exports.init = extensionPoints => {
+export function init (registerExtension) {
    // Mock function for adding a menu item
-   const yourCustomExtension = varFromEp => {
+   const yourCustomExtension = (varFromExtensionPoint) => {
       // your extension code here.
-      // VarFromEp is provided as a parameter when the extension point is executed
+      // varFromExtensionPoint is provided as a parameter when the extension point is executed
    }
 
   // Register to purchase_menu extension point
-  extensionPoints.purchase_menu.register( 'extension-name', yourCustomExtension )
+  registerExtension( 'purchase_menu', 'extension-name', yourCustomExtension )
 }
 ```
 
 ### Installing plugins
-Plugins can be installed from the main process or the renderer. In this setup we will use the renderer. This still requires initialising the plugin facade in the main process. Doing everything from the main process is described in the [API documentation](https://github.com/dutchigor/pluggable-electron/wiki/main-API).
+Plugins are managed in the main process but can be installed from the main process or the renderer. In this setup we will use the renderer. This requires the initialisation of the plugin facade in the renderer using a [preload script](https://www.electronjs.org/docs/latest/tutorial/process-model/#preload-scripts). Doing everything from the main process is described in the [API documentation](https://github.com/dutchigor/pluggable-electron/wiki/main-API).
 
 Once installed, the plugins should be loaded on every startup.
 
-```javascript
+```js
 // main.js
-const pe = require( 'pluggable-electron' )
-
-app.whenReady().then( () => {
-   // Enable the plugin facade connection
-   pe.init( true )
-
-   // Create browser window...
+const pe = require( "pluggable-electron" )
+...
+app.whenReady().then(() => {
+  //Initialise pluggable Electron
+  pe.init(
+    {
+      // Function to check from the main process that user wants to install a plugin
+      confirmInstall: async plg => {
+        const answer = await dialog.showMessageBox({
+          message: `Are you sure you want to install the plugin found at:
+              ${plg}`,
+          buttons: ['Ok', 'Cancel'],
+          cancelId: 1,
+        })
+        return answer.response == 0
+      }
+    },
+    // Path to install plugin to
+    path.join(app.getPath('userData'), 'plugins')
+  )
+  ...
 })
 ```
-```javascript
-//  renderer.js
-const pe = require( '../pluggable-electron' )
+```js
+// preload.js
+const { contextBridge } = require('electron')
+const facade = require("pluggable-electron/facade")
+
+contextBridge.exposeInMainWorld("plugins", facade)
+```
+```js
+// renderer/your-install-module.js
+
+// Get plugin file from input, install and register
+document.getElementById( 'install-file-input' ).addEventListener( 'change', (e) =>
+   window.plugins.install( e.target.files[0].path )
+      .then( (plugin) => window.plugins.register(plugin) )
+)
+```
+```js
+//  renderer/index.js
+import { activationPoints } from "pluggable-electron"
+
+// Enable the activation points
+activationPoints.setup({
+  importer: async (pluginPath) => import( /* webpackIgnore: true */ pluginPath)
+})
 
 // Get plugins that have been loaded in the main process
 // and register them with their activation points
-pe.plugins.getActive()
-  .then( plugins => plugins.forEach( plugin => plugin.register() ) )
+window.plugins.getActive()
+  .then( plugins => plugins.forEach( plugin => window.plugins.register(plugin) ) )
 
-// Get plugin file from input, install and register
-document.getElementById( 'install-file-input' ).addEventListener( 'change', e =>
-   pe.plugins.install( e.target.files[0].path )
-      .then( plugin => plugin.register() )
-)
+// insert at any point after the plugins have been registered
+activationPoints.trigger( 'init' )
 ```
 
-### Activating plugins
-Executing the activation functions in the plugins is done by triggering their activation point. There can be different strategies for activating the plugin, like:
-* Activating all plugins during startup - one point during the app startup for synchronous extensions and one after startup for async extensions
-* Activating the relevant plugins just before an extension point is triggered.
-
-```javascript
-// renderer.js
-// insert any point the extensions have been added and plugins have been registered
-pe.activation.trigger( 'init' )
-// but before related extension points are triggered.
-```
+### End result
 Now the `yourCustomExtension` function in the plugin will be executed when the execution point `purchase_menu` is triggered.
 
 ### Further functionality

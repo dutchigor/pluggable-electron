@@ -1,5 +1,7 @@
 /**
  * Helper functions to access the plugin management in the main process.
+ * Note that the facade needs to be imported separately as "pluggable-electron/facade" as described above.
+ * It is then available on the global window object as describe in the {@link https://www.electronjs.org/docs/api/context-bridge|Electron documentation}
  * @namespace facade
  */
 
@@ -17,7 +19,7 @@ const { ipcRenderer } = require("electron")
  * Install a new plugin.
  * @param {string} spec NPM package specifier of the plugin. Any form understood by NPM will work here.
  *     See [npm-install]{@link https://docs.npmjs.com/cli/v6/commands/npm-install}.
- * @param {Object} [options] The options passed to pacote to fetch the manifest, including version.
+ * @param {Object} [options] The options passed to {@link https://www.npmjs.com/package/pacote|pacote} to fetch the manifest, including version.
  * @param {boolean} [activate=true] Whether the plugin should be activated on install.
  * @returns {Promise.<plugin>} plugin as defined by the main process. Has property cancelled set to true if installation was cancelled in the main process.
  * @alias facade.install
@@ -55,7 +57,7 @@ exports.update = name =>
  * Toggle a plugin's active state. This determines if a plugin should be loaded in initialisation.
  * @param {String} plugin Plugin to toggle.
  * @param {boolean} active Whether plugin should be activated (true) or deactivated (false).
- * @returns {plugin} Updated plugin as defined by the main process.
+ * @returns {Promise.<plugin>} Updated plugin as defined by the main process.
  * @alias facade.toggleActive
  */
 exports.toggleActive = (plugin, active) =>
