@@ -60,10 +60,8 @@ export function get(eps) {
  * @alias extensionPoints.execute
  */
 export function execute(name, input) {
-  if (typeof _extensionPoints[name] !== 'object')
-    throw new Error(`No extension point found with name ${name}`)
-
-  return _extensionPoints[name].execute(input)
+  if (typeof _extensionPoints[name] === 'object')
+    return _extensionPoints[name].execute(input)
 }
 
 /**
@@ -75,8 +73,6 @@ export function execute(name, input) {
  * @alias extensionPoints.executeSerial
  */
 export function executeSerial(name, input) {
-  if (typeof _extensionPoints[name] !== 'object')
-    throw new Error(`No extension point found with name ${name}`)
-
-  return _extensionPoints[name].executeSerial(input)
+  if (typeof _extensionPoints[name] === 'object')
+    return _extensionPoints[name].executeSerial(input)
 }
