@@ -66,13 +66,19 @@ export function register(plugin) {
  * Trigger all activations registered to the given activation point. See {@link Plugin}.
  * This will call the function with the same name as the activation point on the path specified in the plugin.
  * @param {string} activationPoint Name of the activation to trigger
- * @returns {void}
+ * @returns {Promise.<Boolean>} Resolves to true when the activations are complete. 
  * @alias activationPoints.trigger
  */
-export function trigger(activationPoint) {
-  activationRegister.forEach(act => {
-    if (act.activationPoint === activationPoint) {
-      act.trigger(presetEPs)
-    }
-  })
+export async function trigger(activationPoint) {
+  // Make sure all triggers are complete before returning
+  await Promise.all(
+    // Trigger each relevant activation point from the register and return an array of trigger promises
+    activationRegister.reduce((triggered, act) => {
+      if (act.activationPoint === activationPoint) {
+        triggered.push(act.trigger(presetEPs))
+      }
+      return triggered
+    }, [])
+  )
+  return true
 }
