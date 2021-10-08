@@ -1,4 +1,4 @@
-import { get as getEPs, register as registerEP } from "./extension-manager.js"
+import * as em from "./extension-manager.js"
 
 /**
  * A representation of a plugin's registration to an activation point
@@ -24,14 +24,15 @@ class Activation {
 
   /**
    * Trigger the activation function in the plugin once,
-   * providing the list of extension points or extension point register function as input.
+   * providing the list of extension points or an object with the extension point's register, execute and executeSerial functions.
    * @param {boolean} presetEPs Whether the Extension Points have been predefined or can be created on the fly.
    * @returns {boolean} Whether the activation has already been activated.
    */
   async trigger(presetEPs) {
     if (!this.activated) {
       const main = await this.importer(this.url, this.plugin)
-      const epRegister = presetEPs ? getEPs() : registerEP
+      const epRegister = presetEPs ? em.get() :
+        { register: em.register, execute: em.execute, executeSerial: em.executeSerial }
       main[this.activationPoint](epRegister)
       this.activated = true
     }
