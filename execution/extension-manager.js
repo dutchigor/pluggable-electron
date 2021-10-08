@@ -39,16 +39,16 @@ export function register(name, extension, response, priority) {
 /**
  * Fetch extension points by name, or all if no names are provided.
  * @param {Array.<string>} [eps] List of names of extension points to fetch
- * @returns {Array.<ExtensionPoint>} Found extension points
+ * @returns {Object.<ExtensionPoint>} Found extension points
  * @alias extensionPoints.get
  */
 export function get(eps) {
   if (!eps) return _extensionPoints
   return eps.reduce((res, name) => {
     if (typeof _extensionPoints[name] === 'object')
-      res.push(_extensionPoints[name])
+      res[name] = _extensionPoints[name]
     return res
-  }, [])
+  }, {})
 }
 
 /**

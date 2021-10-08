@@ -76,7 +76,7 @@ const extendMenu = extensionPoints.execute('purchase_menu', purchaseMenu )
 ```
 
 ### Registering extensions
-To determine the extensions that need to be executed by an extension point, it needs to be possible for plugins to register to an extension. This is done by creating activation points which are the points where plugins are activated. On activation, a plugin can register functions or objects to extension points (see below). Creating an activation point requires the activation point manager needs to be set up.
+To determine the extensions that need to be executed by an extension point, it needs to be possible for plugins to register to an extension. This is done by creating activation points which are the points where plugins are activated. On activation, a plugin can register functions or objects to extension points (see below). Creating an activation point requires the activation point manager to be set up.
 
 There can be different strategies for activating the plugin, like:
 * Activating all plugins during startup - one point during the app startup for synchronous extensions and one after startup for async extensions
@@ -113,10 +113,10 @@ A plugin is an npm package with activation points added to the package.json.
    ...
 }
 ```
-The main file of this plugin should include a function by the name of the activation point. This function will be be triggered by the activation point and be passed a function to register extensions to extension points by default. An extension can be a callback or object returned to the register method.
+The main file of this plugin should include a function by the name of the activation point. This function will be be triggered by the activation point and be passed an object containing a function to register extensions to extension points by default. An extension can be a callback or object returned to the register method.
 ```javascript
 // index.js
-export function init (registerExtension) {
+export function init (extensionPoints) {
    // Mock function for adding a menu item
    const yourCustomExtension = (varFromExtensionPoint) => {
       // your extension code here.
@@ -124,7 +124,7 @@ export function init (registerExtension) {
    }
 
   // Register to purchase_menu extension point
-  registerExtension( 'purchase_menu', 'extension-name', yourCustomExtension )
+  extensionPoints.register( 'purchase_menu', 'extension-name', yourCustomExtension )
 }
 ```
 
