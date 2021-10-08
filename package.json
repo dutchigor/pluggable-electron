@@ -35,7 +35,7 @@
     "rollup-plugin-terser": "^7.0.2"
   },
   "peerDependencies": {
-    "electron": "13.x"
+    "electron": ">= 13.x < 16"
   },
   "bugs": {
     "url": "https://github.com/dutchigor/pluggable-electron/issues"
