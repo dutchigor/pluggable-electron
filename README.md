@@ -198,6 +198,9 @@ Now the `yourCustomExtension` function in the plugin will be executed when the e
 ### Further functionality
 Pluggable Electron provides a host of functions to support the full plugin lifecycle and some alternative workflows. A more detailed description of the full lifecycle, as well as a detailed API documentation can be found in the [wiki](https://github.com/dutchigor/pluggable-electron/wiki).
 
+## Demo
+A demo project using Pluggable Electron can be found here: https://github.com/dutchigor/pluggable-electron-demo. Also check out the with-vue branch to see an example with Vite and Vue. This example contains a few catches to be aware of when using packaged frontend framework so I recommend checking this out for any such framework.
+
 ## Roadmap
 
 See the [open issues](https://github.com/dutchigor/pluggable-electron/issues) for a list of proposed features (and known issues).
