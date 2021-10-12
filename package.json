@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "jsdoc-to-markdown": "^7.0.1",
-    "rollup": "^2.54.0",
+    "rollup": "^2.58.0",
     "rollup-plugin-terser": "^7.0.2"
   },
   "peerDependencies": {
