@@ -1,6 +1,6 @@
 {
   "name": "pluggable-electron",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "A framework to create a plugin API in Electron apps",
   "keywords": [
     "electron",
