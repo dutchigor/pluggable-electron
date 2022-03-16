@@ -13,6 +13,7 @@
   "module": "dist/execution.es.js",
   "preload": "facade/index.js",
   "pluginMgr": "pluginMgr/index.js",
+  "types": "index.d.ts",
   "files": [
     "facade/*",
     "pluginMgr/*",
@@ -20,7 +21,8 @@
   ],
   "scripts": {
     "docs": "node docs/genDocs.js",
-    "build": "rollup --config"
+    "build": "rollup --config",
+    "types": "tsc"
   },
   "author": "Igor Honhoff",
   "repository": "github:dutchigor/pluggable-electron",
@@ -32,7 +34,8 @@
   "devDependencies": {
     "jsdoc-to-markdown": "^7.1.1",
     "rollup": "^2.70.1",
-    "rollup-plugin-terser": "^7.0.2"
+    "rollup-plugin-terser": "^7.0.2",
+    "typescript": "^4.6.2"
   },
   "peerDependencies": {
     "electron": ">= 13.x < 18"
