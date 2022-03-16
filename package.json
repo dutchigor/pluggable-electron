@@ -9,11 +9,23 @@
     "extend",
     "extension"
   ],
-  "main": "pluginMgr/index.js",
-  "module": "dist/execution.es.js",
-  "preload": "facade/index.js",
-  "pluginMgr": "pluginMgr/index.js",
-  "types": "index.d.ts",
+  "module": "./dist/execution.es.min.js",
+  "exports": {
+    ".": "./pluginMgr/index.js",
+    "./main": "./pluginMgr/index.js",
+    "./preload": "./dist/facade.js",
+    "./renderer": "./execution.es.js"
+  },
+  "typesVersions": {
+    "*": {
+      "preload": [
+        "./dist/facade"
+      ],
+      "renderer": [
+        "./execution.es"
+      ]
+    }
+  },
   "files": [
     "facade/*",
     "pluginMgr/*",
@@ -32,6 +44,7 @@
     "pacote": "^13.0.4"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^21.0.2",
     "jsdoc-to-markdown": "^7.1.1",
     "rollup": "^2.70.1",
     "rollup-plugin-terser": "^7.0.2",
