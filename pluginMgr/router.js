@@ -1,32 +1,33 @@
-const { ipcMain } = require("electron")
+import { ipcMain } from "electron"
 
-const store = require("./store"),
-  Plugin = require("./Plugin")
+import { confirmInstall, getPlugin, getActivePlugins, installPlugin } from "./store"
+import { pluginsPath } from './globals'
+import Plugin from "./Plugin"
 
 // Throw an error if pluginsPath has not yet been provided by usePlugins.
 const checkPluginsPath = () => {
-  if (!store.pluginsPath) throw Error('Path to plugins folder has not yet been set up.')
+  if (!pluginsPath) throw Error('Path to plugins folder has not yet been set up.')
 }
 let active = false
 /**
  * Provide the renderer process access to the plugins.
  **/
-module.exports = () => {
+export default function () {
   if (active) return
   // Register IPC route to install a plugin
   ipcMain.handle('pluggable:install', async (e, plg, options, activate = true) => {
     checkPluginsPath()
-    const conf = await store.confirmInstall(plg)
+    const conf = await confirmInstall(plg)
     if (!conf) return { cancelled: true }
-    const plugin = new Plugin(plg, options)
+    const plugin = await installPlugin(plg, options)
     plugin.setActive(activate)
-    return plugin._install()
+    return JSON.parse(JSON.stringify(plugin))
   })
 
   // Register IPC route to uninstall a plugin
   ipcMain.handle('pluggable:uninstall', (e, plg) => {
     checkPluginsPath()
-    const plugin = store.getPlugin(plg)
+    const plugin = getPlugin(plg)
     plugin.uninstall()
     return true
   })
@@ -34,21 +35,21 @@ module.exports = () => {
   // Register IPC route to update a plugin
   ipcMain.handle('pluggable:update', (e, plg) => {
     checkPluginsPath()
-    const plugin = store.getPlugin(plg)
-    return plugin.update()
+    const plugin = getPlugin(plg)
+    return JSON.parse(JSON.stringify(plugin.update()))
   })
 
   // Register IPC route to get the list of active plugins
   ipcMain.handle('pluggable:getActivePlugins', () => {
     checkPluginsPath()
-    return store.getActivePlugins()
+    return JSON.parse(JSON.stringify(getActivePlugins()))
   })
 
   // Register IPC route to toggle the active state of a plugin
   ipcMain.handle('pluggable:togglePluginActive', (e, plg, active) => {
     checkPluginsPath()
-    const plugin = store.getPlugin(plg)
-    return plugin.setActive(active)
+    const plugin = getPlugin(plg)
+    return JSON.parse(JSON.stringify(plugin.setActive(active)))
   })
 
   active = true

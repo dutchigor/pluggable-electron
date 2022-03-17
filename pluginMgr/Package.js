@@ -1,5 +1,5 @@
-const pacote = require("pacote")
-const path = require("path")
+import { manifest as _manifest, extract } from "pacote"
+import { join } from "path"
 
 /**
  * @private
@@ -45,7 +45,7 @@ class Package {
    */
   async #getManifest() {
     // Get the package's manifest (package.json object)
-    const manifest = await pacote.manifest(this.specifier, this.installOptions)
+    const manifest = await _manifest(this.specifier, this.installOptions)
 
     // If a valid manifest is found
     if (!manifest.name)
@@ -73,7 +73,7 @@ class Package {
     await this.#getManifest()
 
     // Install the package in a child folder of the given folder
-    await pacote.extract(this.specifier, path.join(installPath, this.name), this.installOptions)
+    await extract(this.specifier, join(installPath, this.name), this.installOptions)
 
     return true
   }
@@ -100,4 +100,4 @@ class Package {
   // }
 }
 
-module.exports = Package
+export default Package

@@ -1,5 +1,9 @@
 import { terser } from "rollup-plugin-terser"
-import commonjs from '@rollup/plugin-commonjs';
+import pkg from './package.json'
+import { builtinModules } from "module"
+const deps = Object.keys(pkg.dependencies)
+const peerDeps = Object.keys(pkg.peerDependencies)
+const external = [...deps, ...peerDeps, ...builtinModules]
 
 export default [
   {
@@ -33,6 +37,7 @@ export default [
   },
   {
     input: 'facade/index.js',
+    external,
     output: [
       {
         file: 'dist/facade.js',
@@ -45,23 +50,24 @@ export default [
         plugins: [terser()],
         exports: "named",
       },
-    ]
+
+    ],
   },
-  // {
-  //   input: 'pluginMgr/index.js',
-  //   output: [
-  //     {
-  //       file: 'dist/pluginMgr.js',
-  //       format: 'cjs',
-  //       exports: 'named',
-  //     },
-  //     {
-  //       file: 'dist/pluginMgr.min.js',
-  //       format: 'cjs',
-  //       plugins: [terser()],
-  //       exports: 'named',
-  //     },
-  //   ],
-  //   plugins: [commonjs()],
-  // }
+  {
+    input: 'pluginMgr/index.js',
+    external,
+    output: [
+      {
+        file: 'dist/pluginMgr.js',
+        format: 'cjs',
+        exports: 'named',
+      },
+      {
+        file: 'dist/pluginMgr.min.js',
+        format: 'cjs',
+        plugins: [terser()],
+        exports: 'named',
+      },
+    ],
+  }
 ]

@@ -1,10 +1,11 @@
-const fs = require("fs"),
-  { protocol } = require('electron'),
-  path = require("path")
+import { existsSync, readFileSync, rmdirSync } from "fs"
+import { protocol } from 'electron'
+import { normalize, resolve } from "path"
 
-const Plugin = require("./Plugin"),
-  store = require("./store"),
-  router = require("./router")
+import Plugin from "./Plugin"
+import { confirmInstall, setConfirmInstall, getAllPlugins as _getAllPlugins, removePlugin, persistPlugins, installPlugin as _installPlugin, getPlugin as _getPlugin, getActivePlugins as _getActivePlugins, addPlugin } from "./store"
+import { pluginsPath as _pluginsPath, setPluginsPath, getPluginsFile } from './globals'
+import router from "./router"
 
 /**
  * Sets up the required communication between the main and renderer processes.
@@ -16,10 +17,10 @@ const Plugin = require("./Plugin"),
  * @returns {pluginManager} A set of functions used to manage the plugin lifecycle.
  * @function
  */
-exports.init = (facade, pluginsPath) => {
+export function init(facade, pluginsPath) {
   if (!facade.hasOwnProperty('use') || facade.use) {
     // Store the confirmInstall function
-    store.confirmInstall = facade.confirmInstall
+    setConfirmInstall(facade.confirmInstall)
     // Enable IPC to be used by the facade
     router()
   }
@@ -29,7 +30,7 @@ exports.init = (facade, pluginsPath) => {
 
   // perform full setup if pluginsPath is provided
   if (pluginsPath) {
-    return this.usePlugins(pluginsPath)
+    return usePlugins(pluginsPath)
   }
 
   return {}
@@ -44,7 +45,7 @@ exports.init = (facade, pluginsPath) => {
 const registerPluginProtocol = () => {
   return protocol.registerFileProtocol('plugin', (request, callback) => {
     const entry = request.url.substr(8)
-    const url = path.normalize(store.pluginsPath + entry)
+    const url = normalize(_pluginsPath + entry)
     callback({ path: url })
   })
 }
@@ -55,26 +56,26 @@ const registerPluginProtocol = () => {
  * @param {string} [pluginsPath] Path to the plugins folder. Required if not yet set up.
  * @returns {pluginManager} A set of functions used to manage the plugin lifecycle.
  */
-exports.usePlugins = (pluginsPath) => {
-  if (!pluginsPath && !store.pluginsPath) throw Error('A path to the plugins folder is required to use Pluggable Electron')
+export function usePlugins(pluginsPath) {
+  if (!pluginsPath && !_pluginsPath) throw Error('A path to the plugins folder is required to use Pluggable Electron')
   if (pluginsPath) {
     // Store the path to the plugins folder
-    store.setPluginsPath(pluginsPath)
+    setPluginsPath(pluginsPath)
 
     // Remove any registered plugins
-    for (const plugin of store.getAllPlugins()) {
-      store.removePlugin(plugin.name, false)
+    for (const plugin of _getAllPlugins()) {
+      removePlugin(plugin.name, false)
     }
 
     // Read plugin list from plugins folder
-    if (fs.existsSync(store.getPluginsFile())) {
-      const plugins = JSON.parse(fs.readFileSync(store.getPluginsFile()))
+    if (existsSync(getPluginsFile())) {
+      const plugins = JSON.parse(readFileSync(getPluginsFile()))
       try {
         // Create and store a Plugin instance for each plugin in list
         for (const p in plugins) {
           loadPlugin(plugins[p])
         }
-        store.persistPlugins()
+        persistPlugins()
 
       } catch (error) {
         // Throw meaningful error if plugin loading fails
@@ -85,10 +86,10 @@ exports.usePlugins = (pluginsPath) => {
     // Return the plugin lifecycle functions
   }
   return {
-    installPlugin: store.installPlugin,
-    getPlugin: store.getPlugin,
-    getAllPlugins: store.getAllPlugins,
-    getActivePlugins: store.getActivePlugins,
+    installPlugin: _installPlugin,
+    getPlugin: _getPlugin,
+    getAllPlugins: _getAllPlugins,
+    getActivePlugins: _getActivePlugins,
   }
 }
 
@@ -101,8 +102,8 @@ exports.usePlugins = (pluginsPath) => {
 const loadPlugin = (plg) => {
   if (plg._toUninstall) {
     // Remove plugin if it is set to be uninstalled
-    const plgPath = path.resolve(store.pluginsPath, plg.name)
-    fs.rmdirSync(plgPath, { recursive: true })
+    const plgPath = resolve(_pluginsPath, plg.name)
+    rmdirSync(plgPath, { recursive: true })
 
   } else {
     // Create new plugin, populate it with plg details and save it to the store
@@ -112,6 +113,6 @@ const loadPlugin = (plg) => {
       plugin[key] = plg[key]
     }
 
-    store.addPlugin(plugin, false)
+    addPlugin(plugin, false)
   }
 }

@@ -3,43 +3,16 @@
  * @namespace pluginManager
  */
 
-const fs = require("fs"),
-  path = require("path") //,
-// { app } = require("electron")
-
-/**
- * @private
- * @constant {string} pluginsPath Path to the plugins folder.
- **/
-module.exports.pluginsPath = null
-
-/**
- * @private
- * Set pluginsPath and create the directory if it does not exist.
- * @param {String} plgPath Path to the plugins folder.
- */
-module.exports.setPluginsPath = plgPath => {
-  // Create folder if it does not exist
-  let plgDir
-  try {
-    plgDir = path.normalize(plgPath)
-    if (plgDir.length < 2) throw new Error()
-
-  } catch (error) {
-    throw new Error('Invalid path provided to the plugins folder')
-  }
-
-  if (!fs.existsSync(plgDir)) fs.mkdirSync(plgDir)
-  this.pluginsPath = plgDir
-}
-
-/**
- * @private
- * Get the path to the plugins.json file.
- */
-module.exports.getPluginsFile = () => path.join(this.pluginsPath, 'plugins.json')
+import { writeFileSync } from "fs"
+import Plugin from "./Plugin"
+import { getPluginsFile } from './globals'
 
 // Register of installed plugins
+/**
+ * @private
+ * @typedef plugins
+ * @param {...Plugin} plugin - List of installed plugins
+ */
 const plugins = {}
 
 /**
@@ -48,7 +21,7 @@ const plugins = {}
  * @returns {Plugin} Retrieved plugin
  * @alias pluginManager.getPlugin
  */
-module.exports.getPlugin = (name) => {
+export function getPlugin(name) {
   if (!plugins.hasOwnProperty(name)) {
     throw new Error(`Plugin ${name} does not exist`)
   }
@@ -61,15 +34,16 @@ module.exports.getPlugin = (name) => {
  * @returns {Array.<Plugin>} All plugin objects
  * @alias pluginManager.getAllPlugins
  */
-module.exports.getAllPlugins = () => Object.values(plugins)
+export function getAllPlugins() { return Object.values(plugins) }
 
 /**
  * Get list of active plugin objects.
  * @returns {Array.<Plugin>} Active plugin objects
  * @alias pluginManager.getActivePlugins
  */
-module.exports.getActivePlugins = () =>
-  Object.values(plugins).filter(plugin => plugin._active)
+export function getActivePlugins() {
+  return Object.values(plugins).filter(plugin => plugin._active)
+}
 
 /**
  * @private
@@ -78,9 +52,9 @@ module.exports.getActivePlugins = () =>
  * @param {boolean} persist Whether to save the changes to plugins to file
  * @returns {boolean} Whether the delete was successful
  */
-module.exports.removePlugin = (name, persist = true) => {
+export function removePlugin(name, persist = true) {
   const del = delete plugins[name]
-  if (persist) this.persistPlugins()
+  if (persist) persistPlugins()
   return del
 }
 
@@ -91,9 +65,12 @@ module.exports.removePlugin = (name, persist = true) => {
  * @param {boolean} persist Whether to save the changes to plugins to file
  * @returns {void}
  */
-module.exports.addPlugin = (plugin, persist = true) => {
+export function addPlugin(plugin, persist = true) {
   plugins[plugin.name] = plugin
-  if (persist) this.persistPlugins()
+  if (persist) {
+    persistPlugins()
+  }
+  plugin.subscribe(persistPlugins)
 }
 
 /**
@@ -101,29 +78,36 @@ module.exports.addPlugin = (plugin, persist = true) => {
  * Save stored plugins to file
  * @returns {void}
  */
-module.exports.persistPlugins = () => {
-  fs.writeFileSync(this.getPluginsFile(), JSON.stringify(plugins), 'utf8')
+export function persistPlugins() {
+  writeFileSync(getPluginsFile(), JSON.stringify(plugins), 'utf8')
 }
 
 /**
  * Create and install a new plugin for the given specifier.
  * @param {String} spec The specifier used to locate the package (from NPM or local file)
  * @param {Object} [options] Optional options passed to {@link https://www.npmjs.com/package/pacote|pacote} to fetch the manifest
+ * @param {boolean} [store=true] Whether to store the installed plugin in the store
  * @returns {Plugin} New plugin
  * @alias pluginManager.installPlugin
  */
-module.exports.installPlugin = async (spec, options) => {
+export async function installPlugin(spec, options, store = true) {
   const plugin = new Plugin(spec, options)
-  return await plugin._install()
+  await plugin._install()
+  if (store) addPlugin(plugin)
+  return plugin
 }
 
 
 /**
  * This function is executed when a plugin is installed to verify that the user indeed wants to install the plugin.
- * @callback confirmInstall
+ * @function confirmInstall
  * @param {string} plg The specifier used to locate the package (from NPM or local file)
- * @returns {boolean} Whether to proceed with the plugin installation
+ * @returns {Promise<boolean>} Whether to proceed with the plugin installation
  */
-module.exports.confirmInstall = plg => new Error(
-  'The facade.confirmInstall callback needs to be set in when initializing Pluggable Electron in the main process.'
-)
+export let confirmInstall = function (plg) {
+  return new Error(
+    'The facade.confirmInstall callback needs to be set in when initializing Pluggable Electron in the main process.'
+  )
+}
+
+export function setConfirmInstall(cb) { confirmInstall = cb }

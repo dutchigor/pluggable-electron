@@ -1,9 +1,7 @@
-const fs = require("fs"),
-  path = require("path"),
-  pacote = require("pacote")
+import { manifest as _manifest } from "pacote"
 
-const Package = require("./Package"),
-  store = require("./store")
+import Package from "./Package"
+import { pluginsPath } from "./globals"
 
 /** 
  * An NPM package that can be used as a Pluggable Electron plugin.
@@ -17,21 +15,22 @@ const Package = require("./Package"),
  * @property {Array<string>} activationPoints List of {@link ./Execution-API#activationPoints|activation points}.
  * @property {Array<{ package: string }>} dependencies A list of dependencies as defined in the manifest.
  * @property {string} main The entry point as defined in the main entry of the manifest.
+ * @property {Set.<Function>} _listeners A list of callbacks to be executed when the Plugin is updated.
  */
 class Plugin extends Package {
   _active = false
   _toUninstall = false
+  _listeners = new Set()
 
   /**
    * Extract plugin to plugins folder.
-   * @param {boolean} [addToStore=true] Whether to add the installed plugin to the store 
    * @returns {Promise.<Plugin>} This plugin
    * @private
    */
-  async _install(addToStore = true) {
+  async _install() {
     try {
       // Install the plugin package in the plugins folder
-      await this._installPkg(store.pluginsPath)
+      await this._installPkg(pluginsPath)
 
       if (typeof this.activationPoints !== 'object')
         throw new Error('The plugin does not contain any activation points')
@@ -44,8 +43,6 @@ class Plugin extends Package {
       // fs.rmdirSync(modulesPath, { recursive: true })
       // await this._installDeps(modulesPath)
 
-      if (addToStore) store.addPlugin(this)
-
     } catch (err) {
       // Ensure the plugin is not stored and the folder is removed if the installation fails
       this._active = false
@@ -56,15 +53,40 @@ class Plugin extends Package {
   }
 
   /**
+   * Subscribe to updates of this plugin
+   * @param {callback} cb The function to execute on update
+   */
+  subscribe(cb) {
+    this._listeners.add(cb)
+  }
+
+  /**
+   * Remove subscription
+   * @param {callback} cb callback to remove
+   */
+  unsubscribe(cb) {
+    this._listeners.delete(cb)
+  }
+
+  /**
+   * Execute listeners
+   */
+  emitUpdate() {
+    for (const cb of this._listeners) {
+      cb(this)
+    }
+  }
+
+  /**
    * Check for updates and install if available.
    * @returns {Plugin} This plugin
    */
   async update() {
-    const manifest = await pacote.manifest(this.origin)
+    const manifest = await _manifest(this.origin)
     if (manifest.version !== this.version) {
       this.installOptions.version = false
       await this._install(false)
-      store.persistPlugins()
+      this.emitUpdate()
       return this
     }
   }
@@ -76,7 +98,7 @@ class Plugin extends Package {
   uninstall() {
     this._toUninstall = true
     this._active = false
-    store.persistPlugins()
+    this.emitUpdate()
     return this
   }
 
@@ -87,9 +109,9 @@ class Plugin extends Package {
    */
   setActive(active) {
     this._active = active
-    store.persistPlugins()
+    this.emitUpdate()
     return this
   }
 }
 
-module.exports = Plugin
+export default Plugin

@@ -13,7 +13,7 @@
  * @property {boolean} active Whether this plugin should be activated when its activation points are triggered.
  */
 
-const { ipcRenderer } = require("electron")
+import { ipcRenderer } from "electron"
 
 /**
  * Install a new plugin.
@@ -24,8 +24,7 @@ const { ipcRenderer } = require("electron")
  * @returns {Promise.<plugin>} plugin as defined by the main process. Has property cancelled set to true if installation was cancelled in the main process.
  * @alias facade.install
  */
-exports.install = (spec, options, activate) =>
-  ipcRenderer.invoke('pluggable:install', spec, options, activate)
+export function install(spec, options, activate) { return ipcRenderer.invoke('pluggable:install', spec, options, activate) }
 
 /**
  * Mark plugin for removal. It will then be removed the next time the plugin is initialised (as by setupPlugins in the main process).
@@ -33,16 +32,14 @@ exports.install = (spec, options, activate) =>
  * @returns {Promise.<boolean>} Whether marking the plugin was successful.
  * @alias facade.uninstall
  */
-exports.uninstall = name =>
-  ipcRenderer.invoke('pluggable:uninstall', name)
+export function uninstall(name) { return ipcRenderer.invoke('pluggable:uninstall', name) }
 
 /**
  * Fetch a list of all the active plugins.
  * @returns {Promise.<Array.<plugin>>} List of plugins as defined by the main process.
  * @alias facade.getActive
  */
-exports.getActive = () =>
-  ipcRenderer.invoke('pluggable:getActivePlugins')
+export function getActive() { return ipcRenderer.invoke('pluggable:getActivePlugins') }
 
 /**
  * Update a plugin to its latest version.
@@ -50,8 +47,7 @@ exports.getActive = () =>
  * @returns {Promise.<plugin>} Updated plugin as defined by the main process.
  * @alias facade.update
  */
-exports.update = name =>
-  ipcRenderer.invoke('pluggable:update', name)
+export function update(name) { return ipcRenderer.invoke('pluggable:update', name) }
 
 /**
  * Toggle a plugin's active state. This determines if a plugin should be loaded in initialisation.
@@ -60,5 +56,4 @@ exports.update = name =>
  * @returns {Promise.<plugin>} Updated plugin as defined by the main process.
  * @alias facade.toggleActive
  */
-exports.toggleActive = (plugin, active) =>
-  ipcRenderer.invoke('pluggable:togglePluginActive', plugin, active)
+export function toggleActive(plugin, active) { return ipcRenderer.invoke('pluggable:togglePluginActive', plugin, active) }
