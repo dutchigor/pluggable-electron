@@ -79,7 +79,12 @@ export function addPlugin(plugin, persist = true) {
  * @returns {void}
  */
 export function persistPlugins() {
-  writeFileSync(getPluginsFile(), JSON.stringify(plugins), 'utf8')
+  const persistData = {}
+  for (const name in plugins) {
+    const { _listeners, dependencies, ...plugin } = plugins[name]
+    persistData[name] = plugin
+  }
+  writeFileSync(getPluginsFile(), JSON.stringify(persistData), 'utf8')
 }
 
 /**
