@@ -21,6 +21,7 @@ export default [
         name: 'pluggableElectron',
         plugins: [terser()],
         exports: "named",
+        sourcemap: true,
       },
       {
         file: 'dist/execution.es.js',
@@ -32,6 +33,7 @@ export default [
         format: 'es',
         plugins: [terser()],
         exports: "named",
+        sourcemap: true,
       },
     ],
   },
@@ -49,6 +51,7 @@ export default [
         format: 'cjs',
         plugins: [terser()],
         exports: "named",
+        sourcemap: true,
       },
 
     ],
@@ -67,6 +70,7 @@ export default [
         format: 'cjs',
         plugins: [terser()],
         exports: 'named',
+        sourcemap: true,
       },
     ],
   }

@@ -16,7 +16,7 @@
       "node": "./dist/pluginMgr.min.js",
       "default": "./dist/execution.es.min.js"
     },
-    "./renderer": "./dist/execution.es.js",
+    "./renderer": "./dist/execution.es.min.js",
     "./main": "./dist/pluginMgr.min.js",
     "./preload": "./dist/facade.min.js",
     "./facade": "./dist/facade.min.js"
@@ -24,19 +24,20 @@
   "typesVersions": {
     "*": {
       "preload": [
-        "./dist/facade"
+        "./dist/facade.min",
+        "./dist/facade.d.ts"
       ],
       "renderer": [
-        "./dist/execution.es"
+        "./dist/execution.es.min",
+        "./dist/execution.es.d.ts"
       ],
       "main": [
-        "./dist/pluginMgr"
+        "./dist/pluginMgr.min",
+        "./dist/pluginMgr.d.ts"
       ]
     }
   },
   "files": [
-    "facade/*",
-    "pluginMgr/*",
     "dist/*"
   ],
   "scripts": {
