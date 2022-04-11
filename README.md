@@ -68,7 +68,7 @@ Extension points are added to your [renderer](https://www.electronjs.org/docs/tu
 Execute extension point where you want to provide plugin developers with the possibility to extend your code. This can be done as a handover, parallel execution, or serial execution. These options are explained [here](https://github.com/dutchigor/pluggable-electron/wiki#defining-and-triggering-extension-points).
 ```javascript
 // renderer/your-module.js
-import { extensionPoints } from "pluggable-electron"
+import { extensionPoints } from "pluggable-electron/renderer"
 
 // ... Your business logic ...
 const extendMenu = extensionPoints.execute('purchase_menu', purchaseMenu )
@@ -87,7 +87,7 @@ See the API for the activation point manager [here](https://github.com/dutchigor
 
 ```js
 // renderer/index.js
-import { activationPoints } from "pluggable-electron"
+import { activationPoints } from "pluggable-electron/renderer"
 
 // Enable the activation points
 activationPoints.setup({
@@ -135,7 +135,7 @@ Once installed, the plugins should be loaded on every startup.
 
 ```js
 // main.js
-const pe = require( "pluggable-electron" )
+const pe = require( "pluggable-electron/main" )
 ...
 app.whenReady().then(() => {
   //Initialise pluggable Electron
@@ -161,7 +161,7 @@ app.whenReady().then(() => {
 ```js
 // preload.js
 const { contextBridge } = require('electron')
-const facade = require("pluggable-electron/facade")
+const facade = require("pluggable-electron/preload")
 
 contextBridge.exposeInMainWorld("plugins", facade)
 ```
@@ -176,7 +176,7 @@ document.getElementById( 'install-file-input' ).addEventListener( 'change', (e) 
 ```
 ```js
 //  renderer/index.js
-import { activationPoints } from "pluggable-electron"
+import { activationPoints } from "pluggable-electron/renderer"
 
 // Enable the activation points
 activationPoints.setup({
