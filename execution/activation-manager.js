@@ -17,19 +17,19 @@ import Activation from "./Activation.js"
  * @private
  * Store setup options
  */
-let importer
 let presetEPs
 
 /**
  * Set the renderer options for Pluggable Electron. Should be called before any other Pluggable Electron function in the renderer
  * @param {Object} options
  * @param {activation~importer} options.importer The callback function used to import the plugin entry points.
- * @param {Boolean} [options.presetEPs=false] Whether the Extension Points have been predefined or can be created on the fly.
+ * @param {Boolean|null} [options.presetEPs=false] Whether the Extension Points have been predefined (true),
+ * can be created on the fly(false) or should not be provided through the input at all (null).
  * @returns {void}
  * @alias activationPoints.setup
  */
 export function setup(options) {
-  importer = options.importer
+  Activation.importer = options.importer
   presetEPs = options.hasOwnProperty('presetEPs') ? options.presetEPs : false
 }
 
@@ -47,7 +47,6 @@ const activationRegister = []
  * @alias activationPoints.register
  */
 export function register(plugin) {
-  if (!importer) throw new Error('Importer callback has not been set')
   if (!Array.isArray(plugin.activationPoints)) throw new Error(
     `Plugin ${plugin.name || 'without name'} does not have any activation points set up in its manifest.`
   )
@@ -58,7 +57,7 @@ export function register(plugin) {
     )
 
     // Create new activation and add it to the register
-    if (duplicate < 0) activationRegister.push(new Activation(plugin.name, ap, plugin.url, importer))
+    if (duplicate < 0) activationRegister.push(new Activation(plugin.name, ap, plugin.url))
   }
 }
 
