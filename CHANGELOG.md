@@ -11,6 +11,9 @@
 ### Breaking changes!
 * extensionPoints.get() Always returns all extension points from now on because the filter was just confusing since it is an object.
 
+### Peer dependencies
+* Bumped Electron to include version 18
+
 ## Version 0.4.1 (11/04/2022)
 ### Features
 * Added types. To make use of them in typescript, import pluggable-electron/renderer pluggable-electron /main or pluggable-electron/preload in the respective parts of your application.
