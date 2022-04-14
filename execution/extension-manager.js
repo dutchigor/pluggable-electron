@@ -15,40 +15,37 @@ const _extensionPoints = {}
 /**
  * Create new extension point and add it to the registry.
  * @param {string} name Name of the extension point.
+ * @param {object|function} [ep] Custom extension point to add.
  * @returns {void}
  * @alias extensionPoints.add
  */
-export function add(name) {
-  _extensionPoints[name] = new ExtensionPoint(name)
+export function add(name, ep) {
+  _extensionPoints[name] = ep ?? new ExtensionPoint(name)
 }
 
 /**
  * Create extension point if it does not exist and then register the given extension to it.
- * @param {String} name Name of the extension point.
- * @param {String} extension Unique name for the extension.
+ * @param {string} name Name of the extension point.
+ * @param {string} extension Unique name for the extension.
  * @param {Object|Callback} response Object to be returned or function to be called by the extension point.
- * @param {Number} [priority=0] Order priority for execution used for executing in serial.
+ * @param {number} [priority=0] Order priority for execution used for executing in serial.
  * @returns {void}
  * @alias extensionPoints.register
  */
 export function register(name, extension, response, priority) {
-  if (!_extensionPoints.hasOwnProperty(name)) add(name)
-  _extensionPoints[name].register(extension, response, priority)
+  if (!_extensionPoints[name]) add(name)
+  if (_extensionPoints[name].register) {
+    _extensionPoints[name].register(extension, response, priority)
+  }
 }
 
 /**
- * Fetch extension points by name, or all if no names are provided.
- * @param {Array.<string>} [eps] List of names of extension points to fetch
+ * Fetch all extension points.
  * @returns {Object.<ExtensionPoint>} Found extension points
  * @alias extensionPoints.get
  */
-export function get(eps) {
-  if (!eps) return _extensionPoints
-  return eps.reduce((res, name) => {
-    if (typeof _extensionPoints[name] === 'object')
-      res[name] = _extensionPoints[name]
-    return res
-  }, {})
+export function get() {
+  return { ..._extensionPoints }
 }
 
 /**
@@ -60,7 +57,7 @@ export function get(eps) {
  * @alias extensionPoints.execute
  */
 export function execute(name, input) {
-  if (typeof _extensionPoints[name] === 'object')
+  if (_extensionPoints[name] && _extensionPoints[name].execute)
     return _extensionPoints[name].execute(input)
 }
 
@@ -73,6 +70,6 @@ export function execute(name, input) {
  * @alias extensionPoints.executeSerial
  */
 export function executeSerial(name, input) {
-  if (typeof _extensionPoints[name] === 'object')
+  if (_extensionPoints[name] && _extensionPoints[name].executeSerial)
     return _extensionPoints[name].executeSerial(input)
 }
