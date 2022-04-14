@@ -14,9 +14,9 @@ class ExtensionPoint {
    * Register new extension with this extension point.
    * The registered response will be executed (if callback) or returned (if object) 
    * when the extension point is executed (see below).
-   * @param {String} name Unique name for the extension.
+   * @param {string} name Unique name for the extension.
    * @param {Object|Callback} response Object to be returned or function to be called by the extension point.
-   * @param {Number} [priority] Order priority for execution used for executing in serial.
+   * @param {number} [priority] Order priority for execution used for executing in serial.
    * @returns {void}
    */
   register(name, response, priority = 0) {
@@ -27,6 +27,34 @@ class ExtensionPoint {
     } else {
       this._extensions.push(newExt)
     }
+  }
+
+  /**
+   * Remove an extension from the registry. It will no longer be part of the extension point execution.
+   * @param {string} name Name of the extension to remove.
+   * @returns {void}
+   */
+  unregister(name) {
+    const index = this._extensions.findIndex(ext => ext.name === name)
+    this._extensions.splice(index, 1)
+  }
+
+  /**
+   * Empty the registry of all extensions.
+   * @returns {void}
+   */
+  clear() {
+    this._extensions = []
+  }
+
+  /**
+   * Get a specific extension registered with the extension point
+   * @param {string} name Name of the extension to return
+   * @returns {Object|Callback} The response of the extension. If this is a function the function is returned, not its response.
+   */
+  get(name) {
+    const ep = this._extensions.find(ext => ext.name === name)
+    return ep && ep.response
   }
 
   /**
@@ -51,7 +79,6 @@ class ExtensionPoint {
    * @param {*} input Input to be provided as a parameter to the 1st callback
    * @returns {Promise.<*>} Result of the last extension that was called
    */
-
   async executeSerial(input) {
     return await this._extensions.reduce(async (throughput, p) => {
       let tp = await throughput
