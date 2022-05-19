@@ -24,6 +24,16 @@ export function add(name, ep) {
 }
 
 /**
+ * Remove an extension point from the registry.
+ * @param {string} name Name of the extension point
+ * @returns {void}
+ * @alias extensionPoints.remove
+ */
+export function remove(name) {
+  delete _extensionPoints[name]
+}
+
+/**
  * Create extension point if it does not exist and then register the given extension to it.
  * @param {string} name Name of the extension point.
  * @param {string} extension Unique name for the extension.

@@ -1,13 +1,27 @@
 /**
+ * @typedef {Object} Extension An extension registered to an extension point
+ * @property {string} name Unique name for the extension.
+ * @property {Object|Callback} response Object to be returned or function to be called by the extension point.
+ * @property {number} [priority] Order priority for execution used for executing in serial.
+ */
+
+/**
  * Represents a point in the consumer's code that can be extended by a plugin.
  * The plugin can register a callback or object to the extension point.
  * When the extension point is triggered, the provided function will then be called or object will be returned.
- * @property {string} name Name of the extension point
-*/
+ */
 class ExtensionPoint {
+  /** @type {string} Name of the extension point */
+  name
+
+  /**
+   * @type {Array.<Extension>} The list of all extensions registered with this extension point.
+   * @private
+   */
+  _extensions = []
+
   constructor(name) {
     this.name = name
-    this._extensions = []
   }
 
   /**
@@ -50,7 +64,7 @@ class ExtensionPoint {
   /**
    * Get a specific extension registered with the extension point
    * @param {string} name Name of the extension to return
-   * @returns {Object|Callback} The response of the extension. If this is a function the function is returned, not its response.
+   * @returns {Extension|Callback} The response of the extension. If this is a function the function is returned, not its response.
    */
   get(name) {
     const ep = this._extensions.find(ext => ext.name === name)

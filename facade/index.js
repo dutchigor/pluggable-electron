@@ -6,7 +6,7 @@
  */
 
 /**
- * @typedef {Object} plugin A representation of a plugin in the renderer.
+ * @typedef {Object} Plugin A representation of a plugin in the renderer.
  * @property {string} name Name of the package.
  * @property {string} url The electron url where this plugin is located.
  * @property {Array<string>} activationPoints List of activation points.
@@ -21,7 +21,7 @@ import { ipcRenderer } from "electron"
  *     See [npm-install]{@link https://docs.npmjs.com/cli/v6/commands/npm-install}.
  * @param {Object} [options] The options passed to {@link https://www.npmjs.com/package/pacote|pacote} to fetch the manifest, including version.
  * @param {boolean} [activate=true] Whether the plugin should be activated on install.
- * @returns {Promise.<plugin>} plugin as defined by the main process. Has property cancelled set to true if installation was cancelled in the main process.
+ * @returns {Promise.<Plugin>} plugin as defined by the main process. Has property cancelled set to true if installation was cancelled in the main process.
  * @alias facade.install
  */
 export function install(spec, options, activate) { return ipcRenderer.invoke('pluggable:install', spec, options, activate) }
@@ -36,7 +36,7 @@ export function uninstall(name) { return ipcRenderer.invoke('pluggable:uninstall
 
 /**
  * Fetch a list of all the active plugins.
- * @returns {Promise.<Array.<plugin>>} List of plugins as defined by the main process.
+ * @returns {Promise.<Array.<Plugin>>} List of plugins as defined by the main process.
  * @alias facade.getActive
  */
 export function getActive() { return ipcRenderer.invoke('pluggable:getActivePlugins') }
@@ -44,7 +44,7 @@ export function getActive() { return ipcRenderer.invoke('pluggable:getActivePlug
 /**
  * Update a plugin to its latest version.
  * @param {string} name Name of the plugin to update.
- * @returns {Promise.<plugin>} Updated plugin as defined by the main process.
+ * @returns {Promise.<Plugin>} Updated plugin as defined by the main process.
  * @alias facade.update
  */
 export function update(name) { return ipcRenderer.invoke('pluggable:update', name) }

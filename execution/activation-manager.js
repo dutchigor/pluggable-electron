@@ -34,11 +34,11 @@ export function setup(options) {
 }
 
 /** 
- * @constant {Array.<activation>} activationRegister
+ * @constant {Array.<Activation>} activationRegister
  * @private
  * Store of activations used by the consumer
  */
-const activationRegister = []
+let activationRegister = []
 
 /**
  * Register a plugin with its activation points (as defined in its manifest).
@@ -80,4 +80,23 @@ export async function trigger(activationPoint) {
     }, [])
   )
   return true
+}
+
+/**
+ * Remove a plugin from the activations register.
+ * @param {string} plugin Name of the plugin to remove.
+ * @returns {void}
+ * @alias activationPoints.remove
+ */
+export function remove(plugin) {
+  activationRegister = activationRegister.filter(act => act.plugin !== plugin)
+}
+
+/**
+ * Remove all activations from the activation register.
+ * @returns {void}
+ * @alias activationPoints.clear
+ */
+export function clear() {
+  activationRegister = []
 }

@@ -1,3 +1,8 @@
+## Version 0.4.3 (19/05/2022)
+* Add clear function to Activation Points to clear the registry.
+* Add remove function to Activation Points to remove a plugin from the registry.
+* Add remove function to Extension Points to remove an extension point from the registry.
+
 ## Version 0.4.2 (14/04/2022)
 ### Features
 * Add get function to ExtensionPoint to get a specific extension registered with the extension point.
