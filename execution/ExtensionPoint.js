@@ -50,7 +50,7 @@ class ExtensionPoint {
    */
   unregister(name) {
     const index = this._extensions.findIndex(ext => ext.name === name)
-    this._extensions.splice(index, 1)
+    if (index > -1) this._extensions.splice(index, 1)
   }
 
   /**
@@ -64,7 +64,7 @@ class ExtensionPoint {
   /**
    * Get a specific extension registered with the extension point
    * @param {string} name Name of the extension to return
-   * @returns {Extension|Callback} The response of the extension. If this is a function the function is returned, not its response.
+   * @returns {Object|Callback|undefined} The response of the extension. If this is a function the function is returned, not its response.
    */
   get(name) {
     const ep = this._extensions.find(ext => ext.name === name)
@@ -88,7 +88,8 @@ class ExtensionPoint {
   }
 
   /**
-   * Execute (if callback) or return (if object) the response for each extension registered to this extension point in serial,
+   * Execute (if callback) and return the response, or push it to the array if the previous response is an array
+   * for each extension registered to this extension point in serial,
    * feeding the result from the last response as input to the next.
    * @param {*} input Input to be provided as a parameter to the 1st callback
    * @returns {Promise.<*>} Result of the last extension that was called
