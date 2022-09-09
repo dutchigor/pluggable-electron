@@ -45,7 +45,8 @@
     "docs": "node docs/genDocs.js",
     "build": "rollup --config",
     "watch": "rollup --config -w",
-    "types": "tsc"
+    "types": "tsc",
+    "test": "jest"
   },
   "author": "Igor Honhoff",
   "repository": "github:dutchigor/pluggable-electron",
@@ -54,8 +55,11 @@
     "pacote": "^13.0.4"
   },
   "devDependencies": {
+    "@types/jest": "^29.0.0",
+    "jest": "^29.0.2",
     "jsdoc-to-markdown": "^7.1.1",
     "rollup": "^2.70.1",
+    "rollup-jest": "^3.0.0",
     "rollup-plugin-terser": "^7.0.2",
     "typescript": "^4.6.2"
   },
@@ -64,5 +68,8 @@
   },
   "bugs": {
     "url": "https://github.com/dutchigor/pluggable-electron/issues"
+  },
+  "jest": {
+    "preset": "rollup-jest"
   }
 }
