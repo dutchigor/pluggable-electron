@@ -35,27 +35,28 @@ export function remove(name) {
 
 /**
  * Create extension point if it does not exist and then register the given extension to it.
- * @param {string} name Name of the extension point.
+ * @param {string} ep Name of the extension point.
  * @param {string} extension Unique name for the extension.
  * @param {Object|Callback} response Object to be returned or function to be called by the extension point.
  * @param {number} [priority=0] Order priority for execution used for executing in serial.
  * @returns {void}
  * @alias extensionPoints.register
  */
-export function register(name, extension, response, priority) {
-  if (!_extensionPoints[name]) add(name)
-  if (_extensionPoints[name].register) {
-    _extensionPoints[name].register(extension, response, priority)
+export function register(ep, extension, response, priority) {
+  if (!_extensionPoints[ep]) add(ep)
+  if (_extensionPoints[ep].register) {
+    _extensionPoints[ep].register(extension, response, priority)
   }
 }
 
 /**
- * Fetch all extension points.
- * @returns {Object.<ExtensionPoint>} Found extension points
+ * Fetch extension point by name. or all extension points if no name is given.
+ * @param {string} [ep] Extension point to return
+ * @returns {Object.<ExtensionPoint> | ExtensionPoint} Found extension points
  * @alias extensionPoints.get
  */
-export function get() {
-  return { ..._extensionPoints }
+export function get(ep) {
+  return (ep ? _extensionPoints[ep] : { ..._extensionPoints })
 }
 
 /**
@@ -67,8 +68,10 @@ export function get() {
  * @alias extensionPoints.execute
  */
 export function execute(name, input) {
-  if (_extensionPoints[name] && _extensionPoints[name].execute)
-    return _extensionPoints[name].execute(input)
+  if (!_extensionPoints[name] || !_extensionPoints[name].execute) throw new Error(
+    `The extension point "${name}" is not a valid extension point`
+  )
+  return _extensionPoints[name].execute(input)
 }
 
 /**
@@ -80,6 +83,8 @@ export function execute(name, input) {
  * @alias extensionPoints.executeSerial
  */
 export function executeSerial(name, input) {
-  if (_extensionPoints[name] && _extensionPoints[name].executeSerial)
-    return _extensionPoints[name].executeSerial(input)
+  if (!_extensionPoints[name] || !_extensionPoints[name].executeSerial) throw new Error(
+    `The extension point "${name}" is not a valid extension point`
+  )
+  return _extensionPoints[name].executeSerial(input)
 }
