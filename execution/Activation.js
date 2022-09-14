@@ -1,19 +1,38 @@
 import { get as getEPs, register, execute, executeSerial } from "./extension-manager.js"
 
 /**
+ * Used to import a plugin entry point.
+ * Ensure your bundler does no try to resolve this import as the plugins are not known at build time.
+ * @callback importer
+ * @param {string} entryPoint File to be imported.
+ * @returns {module} The module containing the entry point function.
+ */
+
+/**
  * A representation of a plugin's registration to an activation point
+ * @prop {string} plugin Name of the registered plugin.
+ * @prop {string} activationPoint Name of the activation point that is registered to.
+ * @prop {string} url location of the file containing the activation function.
+ * @prop {boolean} activated Whether the activation has been activated.
+ */
+
+/**
+ * A representation of a plugin's registration to an activation point
+ * @prop {importer} importer Used to import the entry point.
  */
 class Activation {
-  /**
-   * Create an activation
-   * @param {importer} importer Used to import the entry point.
-   * @param {string} plugin Name of the registered plugin.
-   * @param {string} activationPoint Name of the activation point that is registered to.
-   * @param {string} url location of the file containing the activation function.
-   * @param {boolean} activated Whether the activation has been activated.
-   * @returns {void}
-   */
   static importer
+
+  /** @type {string} Name of the registered plugin. */
+  plugin
+
+  /** @type {string} Name of the activation point that is registered to. */
+  activationPoint
+
+  /** @type {string} location of the file containing the activation function. */
+  url
+  /** @type {boolean} Whether the activation has been activated. */
+  activated
 
   constructor(plugin, activationPoint, url) {
     this.plugin = plugin

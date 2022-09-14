@@ -6,14 +6,6 @@ import Activation from "./Activation.js"
  */
 
 /**
- * Used to import a plugin entry point.
- * Ensure your bundler does no try to resolve this import as the plugins are not known at build time.
- * @callback activation~importer
- * @param {string} entryPoint File to be imported.
- * @returns {module} The module containing the entry point function.
- */
-
-/**
  * @private
  * Store setup options
  */

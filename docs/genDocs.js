@@ -22,14 +22,14 @@ const createDoc = async (inFiles, tmpl, outFile) => {
 
 // Generate main process documentation
 createDoc(
-  ['pluginMgr/*.js'],
+  ['pluginMgr/!(*.test).js'],
   'pluginMgr-API.hbs',
   'Plugin-manager-API.md'
 )
 
 // Generate renderer documentation
 createDoc(
-  ['execution/*.js', 'facade/*.js'],
+  ['execution/!(*.test).js', 'facade/!(*.test).js'],
   'execution-API.hbs',
   'Execution-API.md'
 )
