@@ -2,7 +2,6 @@ import { get as getEPs, register, execute, executeSerial } from "./extension-man
 
 /**
  * A representation of a plugin's registration to an activation point
- * @private
  */
 class Activation {
   /**
@@ -35,6 +34,9 @@ class Activation {
 
     if (!this.activated) {
       const main = await Activation.importer(this.url, this.plugin)
+      if (!main || typeof main[this.activationPoint] !== 'function') {
+        throw new Error(`Activation point "${this.activationPoint}" was triggered but does not exist on plugin ${this.plugin}`)
+      }
       const activate = main[this.activationPoint]
       switch (presetEPs) {
         case true:

@@ -38,7 +38,7 @@ export function setup(options) {
  * @private
  * Store of activations used by the consumer
  */
-let activationRegister = []
+const activationRegister = []
 
 /**
  * Register a plugin with its activation points (as defined in its manifest).
@@ -89,7 +89,12 @@ export async function trigger(activationPoint) {
  * @alias activationPoints.remove
  */
 export function remove(plugin) {
-  activationRegister = activationRegister.filter(act => act.plugin !== plugin)
+  let i = activationRegister.length
+  while (i--) {
+    if (activationRegister[i].plugin === plugin) {
+      activationRegister.splice(i, 1)
+    }
+  }
 }
 
 /**
@@ -98,5 +103,14 @@ export function remove(plugin) {
  * @alias activationPoints.clear
  */
 export function clear() {
-  activationRegister = []
+  activationRegister.length = 0
+}
+
+/**
+ * Fetch all activations.
+ * @returns {Array.<Activation>} Found extension points
+ * @alias activationPoints.get
+ */
+export function get() {
+  return [...activationRegister]
 }
