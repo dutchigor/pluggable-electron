@@ -55,6 +55,7 @@
     "pacote": "^13.0.4"
   },
   "devDependencies": {
+    "@kayahr/jest-electron-runner": "^29.0.0",
     "@types/jest": "^29.0.0",
     "jest": "^29.0.2",
     "jsdoc-to-markdown": "^7.1.1",
@@ -70,6 +71,8 @@
     "url": "https://github.com/dutchigor/pluggable-electron/issues"
   },
   "jest": {
-    "preset": "rollup-jest"
+    "preset": "rollup-jest",
+    "runner": "@kayahr/jest-electron-runner/main",
+    "testEnvironment": "node"
   }
 }
