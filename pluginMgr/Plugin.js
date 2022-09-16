@@ -1,4 +1,4 @@
-import { manifest as _manifest } from "pacote"
+import { manifest } from "pacote"
 
 import Package from "./Package"
 import { pluginsPath } from "./globals"
@@ -15,12 +15,12 @@ import { pluginsPath } from "./globals"
  * @property {Array<string>} activationPoints List of {@link ./Execution-API#activationPoints|activation points}.
  * @property {Array<{ package: string }>} dependencies A list of dependencies as defined in the manifest.
  * @property {string} main The entry point as defined in the main entry of the manifest.
- * @property {Set.<Function>} _listeners A list of callbacks to be executed when the Plugin is updated.
+ * @property {{[string]: Function}} _listeners A list of callbacks to be executed when the Plugin is updated.
  */
 class Plugin extends Package {
   _active = false
   _toUninstall = false
-  _listeners = new Set()
+  _listeners = {}
 
   /**
    * Extract plugin to plugins folder.
@@ -54,24 +54,25 @@ class Plugin extends Package {
 
   /**
    * Subscribe to updates of this plugin
+   * @param {string} name name of the callback to register
    * @param {callback} cb The function to execute on update
    */
-  subscribe(cb) {
-    this._listeners.add(cb)
+  subscribe(name, cb) {
+    this._listeners[name] = cb
   }
 
   /**
    * Remove subscription
-   * @param {callback} cb callback to remove
+   * @param {string} name name of the callback to remove
    */
-  unsubscribe(cb) {
-    this._listeners.delete(cb)
+  unsubscribe(name) {
+    delete this._listeners[name]
   }
 
   /**
    * Execute listeners
    */
-  emitUpdate() {
+  #emitUpdate() {
     for (const cb of this._listeners) {
       cb(this)
     }
@@ -82,13 +83,13 @@ class Plugin extends Package {
    * @returns {Plugin} This plugin
    */
   async update() {
-    const manifest = await _manifest(this.origin)
-    if (manifest.version !== this.version) {
+    const mnf = await manifest(this.origin)
+    if (mnf.version !== this.version) {
       this.installOptions.version = false
       await this._install(false)
-      this.emitUpdate()
-      return this
+      this.#emitUpdate()
     }
+    return this
   }
 
   /**
@@ -98,7 +99,7 @@ class Plugin extends Package {
   uninstall() {
     this._toUninstall = true
     this._active = false
-    this.emitUpdate()
+    this.#emitUpdate()
     return this
   }
 
@@ -109,7 +110,7 @@ class Plugin extends Package {
    */
   setActive(active) {
     this._active = active
-    this.emitUpdate()
+    this.#emitUpdate()
     return this
   }
 }

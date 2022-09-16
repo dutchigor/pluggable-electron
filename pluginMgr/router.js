@@ -1,7 +1,7 @@
 import { ipcMain } from "electron"
 
-import { confirmInstall, getPlugin, getActivePlugins, installPlugin } from "./store"
-import { pluginsPath } from './globals'
+import { getPlugin, getActivePlugins, installPlugin } from "./store"
+import { pluginsPath, confirmInstall } from './globals'
 
 // Throw an error if pluginsPath has not yet been provided by usePlugins.
 const checkPluginsPath = () => {

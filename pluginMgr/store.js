@@ -1,6 +1,6 @@
 /**
  * Provides access to the plugins stored by Pluggable Electron
- * @namespace pluginManager
+ * @typedef pluginManager
  */
 
 import { writeFileSync } from "fs"
@@ -69,8 +69,8 @@ export function addPlugin(plugin, persist = true) {
   plugins[plugin.name] = plugin
   if (persist) {
     persistPlugins()
+    plugin.subscribe('pe-persist', persistPlugins)
   }
-  plugin.subscribe(persistPlugins)
 }
 
 /**
@@ -101,18 +101,3 @@ export async function installPlugin(spec, options, store = true) {
   if (store) addPlugin(plugin)
   return plugin
 }
-
-
-/**
- * This function is executed when a plugin is installed to verify that the user indeed wants to install the plugin.
- * @function confirmInstall
- * @param {string} plg The specifier used to locate the package (from NPM or local file)
- * @returns {Promise<boolean>} Whether to proceed with the plugin installation
- */
-export let confirmInstall = function (plg) {
-  return new Error(
-    'The facade.confirmInstall callback needs to be set in when initializing Pluggable Electron in the main process.'
-  )
-}
-
-export function setConfirmInstall(cb) { confirmInstall = cb }

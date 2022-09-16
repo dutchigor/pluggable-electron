@@ -3,8 +3,8 @@ import { protocol } from 'electron'
 import { normalize, resolve } from "path"
 
 import Plugin from "./Plugin"
-import { confirmInstall, setConfirmInstall, getAllPlugins as _getAllPlugins, removePlugin, persistPlugins, installPlugin as _installPlugin, getPlugin as _getPlugin, getActivePlugins as _getActivePlugins, addPlugin } from "./store"
-import { pluginsPath as _pluginsPath, setPluginsPath, getPluginsFile } from './globals'
+import { getAllPlugins, removePlugin, persistPlugins, installPlugin, getPlugin, getActivePlugins, addPlugin } from "./store"
+import { pluginsPath as storedPluginsPath, setPluginsPath, getPluginsFile, setConfirmInstall } from './globals'
 import router from "./router"
 
 /**
@@ -45,7 +45,7 @@ export function init(facade, pluginsPath) {
 const registerPluginProtocol = () => {
   return protocol.registerFileProtocol('plugin', (request, callback) => {
     const entry = request.url.substr(8)
-    const url = normalize(_pluginsPath + entry)
+    const url = normalize(storedPluginsPath + entry)
     callback({ path: url })
   })
 }
@@ -57,13 +57,13 @@ const registerPluginProtocol = () => {
  * @returns {pluginManager} A set of functions used to manage the plugin lifecycle.
  */
 export function usePlugins(pluginsPath) {
-  if (!pluginsPath && !_pluginsPath) throw Error('A path to the plugins folder is required to use Pluggable Electron')
+  if (!pluginsPath && !storedPluginsPath) throw Error('A path to the plugins folder is required to use Pluggable Electron')
   if (pluginsPath) {
     // Store the path to the plugins folder
     setPluginsPath(pluginsPath)
 
     // Remove any registered plugins
-    for (const plugin of _getAllPlugins()) {
+    for (const plugin of getAllPlugins()) {
       removePlugin(plugin.name, false)
     }
 
@@ -86,10 +86,10 @@ export function usePlugins(pluginsPath) {
     // Return the plugin lifecycle functions
   }
   return {
-    installPlugin: _installPlugin,
-    getPlugin: _getPlugin,
-    getAllPlugins: _getAllPlugins,
-    getActivePlugins: _getActivePlugins,
+    installPlugin,
+    getPlugin,
+    getAllPlugins,
+    getActivePlugins,
   }
 }
 
@@ -102,7 +102,7 @@ export function usePlugins(pluginsPath) {
 const loadPlugin = (plg) => {
   if (plg._toUninstall) {
     // Remove plugin if it is set to be uninstalled
-    const plgPath = resolve(_pluginsPath, plg.name)
+    const plgPath = resolve(storedPluginsPath, plg.name)
     rmdirSync(plgPath, { recursive: true })
 
   } else {
@@ -114,5 +114,6 @@ const loadPlugin = (plg) => {
     }
 
     addPlugin(plugin, false)
+    plugin.subscribe('pe-persist', persistPlugins)
   }
 }
