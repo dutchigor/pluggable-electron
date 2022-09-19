@@ -81,8 +81,7 @@ export function addPlugin(plugin, persist = true) {
 export function persistPlugins() {
   const persistData = {}
   for (const name in plugins) {
-    const { _listeners, dependencies, ...plugin } = plugins[name]
-    persistData[name] = plugin
+    persistData[name] = plugins[name]
   }
   writeFileSync(getPluginsFile(), JSON.stringify(persistData), 'utf8')
 }

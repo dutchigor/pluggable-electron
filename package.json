@@ -69,10 +69,5 @@
   },
   "bugs": {
     "url": "https://github.com/dutchigor/pluggable-electron/issues"
-  },
-  "jest": {
-    "preset": "rollup-jest",
-    "runner": "@kayahr/jest-electron-runner/main",
-    "testEnvironment": "node"
   }
 }

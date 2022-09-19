@@ -13,14 +13,17 @@ import { pluginsPath } from "./globals"
  * @property {string} url Electron URL where the package can be accessed.
  * @property {string} version Version of the package as defined in the manifest.
  * @property {Array<string>} activationPoints List of {@link ./Execution-API#activationPoints|activation points}.
- * @property {Array<{ package: string }>} dependencies A list of dependencies as defined in the manifest.
  * @property {string} main The entry point as defined in the main entry of the manifest.
- * @property {{[string]: Function}} _listeners A list of callbacks to be executed when the Plugin is updated.
  */
 class Plugin extends Package {
   _active = false
   _toUninstall = false
-  _listeners = {}
+
+  /**
+   * @private
+   * @property {Object.<string, Function>} #listeners A list of callbacks to be executed when the Plugin is updated.
+   */
+  #listeners = {}
 
   /**
    * Extract plugin to plugins folder.
@@ -58,7 +61,7 @@ class Plugin extends Package {
    * @param {callback} cb The function to execute on update
    */
   subscribe(name, cb) {
-    this._listeners[name] = cb
+    this.#listeners[name] = cb
   }
 
   /**
@@ -66,14 +69,14 @@ class Plugin extends Package {
    * @param {string} name name of the callback to remove
    */
   unsubscribe(name) {
-    delete this._listeners[name]
+    delete this.#listeners[name]
   }
 
   /**
    * Execute listeners
    */
   #emitUpdate() {
-    for (const cb of this._listeners) {
+    for (const cb of this.#listeners) {
       cb(this)
     }
   }

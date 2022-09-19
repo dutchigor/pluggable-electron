@@ -12,8 +12,13 @@ class Package {
   name
   version
   activationPoints
-  dependencies
   main
+
+  /**
+   * @private
+   * @property {Array<{ package: string }>} #dependencies A list of dependencies as defined in the manifest.
+   */
+  #dependencies
 
   /**
    * Set installOptions with defaults for options that have not been provided
@@ -54,7 +59,7 @@ class Package {
     // set the Package properties based on the it's manifest
     this.name = manifest.name
     this.version = manifest.version
-    this.dependencies = manifest.dependencies || {}
+    this.#dependencies = manifest.dependencies || {}
     this.activationPoints = manifest.activationPoints || null
     this.main = manifest.main
 

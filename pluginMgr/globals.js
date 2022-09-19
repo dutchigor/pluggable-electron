@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync } from "fs"
+import { existsSync, mkdirSync, writeFileSync } from "fs"
 import { normalize, join } from "path"
 
 export let pluginsPath = null
@@ -19,12 +19,16 @@ export function setPluginsPath(plgPath) {
     plgDir = normalize(plgPath)
     if (plgDir.length < 2) throw new Error()
 
+    if (!existsSync(plgDir)) {
+      mkdirSync(plgDir)
+      writeFileSync(join(plgDir, 'plugins.json'), '{}', 'utf8')
+    }
+    pluginsPath = plgDir
+
   } catch (error) {
     throw new Error('Invalid path provided to the plugins folder')
   }
 
-  if (!existsSync(plgDir)) mkdirSync(plgDir)
-  pluginsPath = plgDir
 }
 
 /**

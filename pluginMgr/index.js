@@ -38,11 +38,11 @@ export function init(facade, pluginsPath) {
 }
 
 /**
- * @private
  * Create plugins protocol to provide plugins to renderer
+ * @private
  * @returns {boolean} Whether the protocol registration was successful
  */
-const registerPluginProtocol = () => {
+function registerPluginProtocol() {
   return protocol.registerFileProtocol('plugin', (request, callback) => {
     const entry = request.url.substr(8)
     const url = normalize(storedPluginsPath + entry)
@@ -52,54 +52,47 @@ const registerPluginProtocol = () => {
 
 /**
  * Set Pluggable Electron up to run from the pluginPath folder if it is provided and
- * load plugins persisted in that folder. Will just return the plugin lifecycle functions if no pluginsPath is provided.
- * @param {string} [pluginsPath] Path to the plugins folder. Required if not yet set up.
+ * load plugins persisted in that folder.
+ * @param {string} pluginsPath Path to the plugins folder. Required if not yet set up.
  * @returns {pluginManager} A set of functions used to manage the plugin lifecycle.
  */
 export function usePlugins(pluginsPath) {
-  if (!pluginsPath && !storedPluginsPath) throw Error('A path to the plugins folder is required to use Pluggable Electron')
-  if (pluginsPath) {
-    // Store the path to the plugins folder
-    setPluginsPath(pluginsPath)
+  if (!pluginsPath) throw Error('A path to the plugins folder is required to use Pluggable Electron')
+  // Store the path to the plugins folder
+  setPluginsPath(pluginsPath)
 
-    // Remove any registered plugins
-    for (const plugin of getAllPlugins()) {
-      removePlugin(plugin.name, false)
-    }
-
-    // Read plugin list from plugins folder
-    if (existsSync(getPluginsFile())) {
-      const plugins = JSON.parse(readFileSync(getPluginsFile()))
-      try {
-        // Create and store a Plugin instance for each plugin in list
-        for (const p in plugins) {
-          loadPlugin(plugins[p])
-        }
-        persistPlugins()
-
-      } catch (error) {
-        // Throw meaningful error if plugin loading fails
-        throw new Error('Could not successfully rebuild list of installed plugins. Please check the plugins.json file in the plugins folder')
-      }
-    }
-
-    // Return the plugin lifecycle functions
+  // Remove any registered plugins
+  for (const plugin of getAllPlugins()) {
+    removePlugin(plugin.name, false)
   }
-  return {
-    installPlugin,
-    getPlugin,
-    getAllPlugins,
-    getActivePlugins,
+
+  // Read plugin list from plugins folder
+  const plugins = JSON.parse(readFileSync(getPluginsFile()))
+  try {
+    // Create and store a Plugin instance for each plugin in list
+    for (const p in plugins) {
+      loadPlugin(plugins[p])
+    }
+    persistPlugins()
+
+  } catch (error) {
+    // Throw meaningful error if plugin loading fails
+    throw new Error('Could not successfully rebuild list of installed plugins.\n'
+      + error
+      + '\nPlease check the plugins.json file in the plugins folder.')
   }
+
+  // Return the plugin lifecycle functions
+  return getStore()
 }
 
 /**
- * @private
  * Check the given plugin object. If it is marked for uninstalling, the plugin files are removed.
  * Otherwise a Plugin instance for the provided object is created and added to the store.
+ * @private
  * @param {Object} plg Plugin info
  */
-const loadPlugin = (plg) => {
+function loadPlugin(plg) {
   if (plg._toUninstall) {
     // Remove plugin if it is set to be uninstalled
     const plgPath = resolve(storedPluginsPath, plg.name)
@@ -115,5 +108,22 @@ const loadPlugin = (plg) => {
 
     addPlugin(plugin, false)
     plugin.subscribe('pe-persist', persistPlugins)
+  }
+}
+
+/**
+ * Returns the publicly available store functions.
+ * @returns {pluginManager} A set of functions used to manage the plugin lifecycle.
+ */
+export function getStore() {
+  if (!storedPluginsPath) {
+    throw new Error('The plugin path has not yet been set up. Please run usePlugins before accessing the store')
+  }
+
+  return {
+    installPlugin,
+    getPlugin,
+    getAllPlugins,
+    getActivePlugins,
   }
 }
