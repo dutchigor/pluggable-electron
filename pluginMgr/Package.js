@@ -1,4 +1,4 @@
-import { manifest as _manifest, extract } from "pacote"
+import { manifest, extract } from "pacote"
 import { join } from "path"
 
 /**
@@ -25,7 +25,7 @@ class Package {
    * @param {string} [origin] See {@link Plugin}
    * @param {Object} [options] See {@link Plugin}
    */
-  constructor(origin, options) {
+  constructor(origin, options = {}) {
     this.origin = origin
     const defaultOpts = {
       version: false,
@@ -50,18 +50,19 @@ class Package {
    */
   async #getManifest() {
     // Get the package's manifest (package.json object)
-    const manifest = await _manifest(this.specifier, this.installOptions)
+    try {
+      const mnf = await manifest(this.specifier, this.installOptions)
 
-    // If a valid manifest is found
-    if (!manifest.name)
-      throw new Error(`The package ${this.origin} does not contain a valid manifest`)
+      // set the Package properties based on the it's manifest
+      this.name = mnf.name
+      this.version = mnf.version
+      this.#dependencies = mnf.dependencies || {}
+      this.activationPoints = mnf.activationPoints || null
+      this.main = mnf.main
 
-    // set the Package properties based on the it's manifest
-    this.name = manifest.name
-    this.version = manifest.version
-    this.#dependencies = manifest.dependencies || {}
-    this.activationPoints = manifest.activationPoints || null
-    this.main = manifest.main
+    } catch (error) {
+      throw new Error(`Package ${this.origin} does not contain a valid manifest: ${error}`)
+    }
 
     return true
   }

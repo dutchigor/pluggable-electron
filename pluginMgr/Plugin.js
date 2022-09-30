@@ -35,7 +35,7 @@ class Plugin extends Package {
       // Install the plugin package in the plugins folder
       await this._installPkg(pluginsPath)
 
-      if (typeof this.activationPoints !== 'object')
+      if (typeof this.activationPoints !== 'object' || this.activationPoints === null)
         throw new Error('The plugin does not contain any activation points')
 
       // Set the url using the custom plugins protocol
@@ -76,8 +76,8 @@ class Plugin extends Package {
    * Execute listeners
    */
   #emitUpdate() {
-    for (const cb of this.#listeners) {
-      cb(this)
+    for (const cb in this.#listeners) {
+      this.#listeners[cb].call(null, this)
     }
   }
 
