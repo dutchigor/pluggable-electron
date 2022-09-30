@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, rmdirSync } from "fs"
+import { readFileSync, rmdirSync } from "fs"
 import { protocol } from 'electron'
 import { normalize, resolve } from "path"
 
@@ -14,7 +14,7 @@ import router from "./router"
  * @param {confirmInstall} facade.confirmInstall Function to validate that a plugin should be installed. 
  * @param {Boolean} [facade.use=true] Whether to make a facade to the plugins available in the renderer.
  * @param {string} [pluginsPath] Optional path to the plugins folder.
- * @returns {pluginManager} A set of functions used to manage the plugin lifecycle.
+ * @returns {pluginManager|Object} A set of functions used to manage the plugin lifecycle if usePlugins is provided.
  * @function
  */
 export function init(facade, pluginsPath) {

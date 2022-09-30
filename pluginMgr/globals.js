@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync, writeFileSync } from "fs"
-import { normalize, join } from "path"
+import { join, resolve } from "path"
 
 export let pluginsPath = null
 
@@ -16,13 +16,14 @@ export function setPluginsPath(plgPath) {
   // Create folder if it does not exist
   let plgDir
   try {
-    plgDir = normalize(plgPath)
+    plgDir = resolve(plgPath)
     if (plgDir.length < 2) throw new Error()
 
-    if (!existsSync(plgDir)) {
-      mkdirSync(plgDir)
-      writeFileSync(join(plgDir, 'plugins.json'), '{}', 'utf8')
-    }
+    if (!existsSync(plgDir)) mkdirSync(plgDir)
+
+    const pluginsJson = join(plgDir, 'plugins.json')
+    if (!existsSync(pluginsJson)) writeFileSync(pluginsJson, '{}', 'utf8')
+
     pluginsPath = plgDir
 
   } catch (error) {

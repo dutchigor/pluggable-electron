@@ -3,6 +3,7 @@ import { installPlugin, getPlugin, getAllPlugins, getActivePlugins, addPlugin } 
 import Plugin from './Plugin'
 import { existsSync, rmSync, mkdirSync, writeFileSync } from 'fs'
 import { join } from 'path'
+import { protocol } from 'electron'
 
 // Set up variables for test folders and test plugins.
 const pluginDir = './testPlugins'
@@ -132,11 +133,38 @@ describe('after setting a plugin path', () => {
 })
 
 describe('init', () => {
-  it.todo('should make the confirmInstall callback available to the install handler if facade is used')
+  // Enabling the facade and registering the confirm install function is tested with the router.
+  let pm
 
-  it.todo('should register the ipc handlers if facade is used')
+  beforeAll(() => {
+    // Create test plugins folder
+    mkdirSync(pluginDir)
 
-  it.todo('should make the plugin files available through the plugin protocol')
+    // Initialize Pluggable Electron without a plugin folder
+    pm = init({ confirmInstall: () => true })
+  })
 
-  it.todo('should return the plugin lifecycle functions if a plugin path is provided')
+  afterAll(() => {
+    // Remove test plugins folder
+    rmSync(pluginDir, { recursive: true })
+  })
+
+  it('should make the plugin files available through the plugin protocol', async () => {
+    expect(protocol.isProtocolRegistered('plugin')).toBeTruthy()
+  })
+
+  it('should return an empty object if no plugin path is provided', () => {
+    expect(pm).toEqual({})
+  })
+
+  it('should return the plugin lifecycle functions if a plugin path is provided', () => {
+    pm = init({ confirmInstall: () => true }, pluginDir)
+
+    expect(pm).toEqual({
+      installPlugin,
+      getPlugin,
+      getAllPlugins,
+      getActivePlugins,
+    })
+  })
 })
