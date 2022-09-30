@@ -171,14 +171,36 @@ describe('update', () => {
   })
 })
 
-describe('uninstall', () => {
-  it.todo('should mark the plugin as inactive and to be uninstalled')
+describe('setActive', () => {
+  it('should set the plugin to be active', () => {
+    plugin.setActive(true)
+    expect(plugin._active).toBeTruthy()
+  })
 
-  it.todo('should execute callbacks subscribed to this plugin, providing the plugin as a parameter')
+  it('should execute callbacks subscribed to this plugin, providing the plugin as a parameter', () => {
+    let res = false
+    plugin.subscribe('test', () => res = true)
+    plugin.setActive(true)
+
+    expect(res).toBeTruthy()
+  })
 })
 
-describe('setActive', () => {
-  it.todo('should set the plugin to be active')
+describe('uninstall', () => {
+  let subscription = false
+  beforeAll(() => {
+    plugin.subscribe('test', () => subscription = true)
+    plugin.uninstall()
+  })
 
-  it.todo('should execute callbacks subscribed to this plugin, providing the plugin as a parameter')
+  it('should mark the plugin as inactive and to be uninstalled', () => {
+    expect(plugin).toMatchObject({
+      _active: false,
+      _toUninstall: true,
+    })
+  })
+
+  it('should execute callbacks subscribed to this plugin, providing the plugin as a parameter', () => {
+    expect(subscription).toBeTruthy()
+  })
 })
