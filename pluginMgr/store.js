@@ -91,7 +91,7 @@ export function persistPlugins() {
  * @param {String} spec The specifier used to locate the package (from NPM or local file)
  * @param {Object} [options] Optional options passed to {@link https://www.npmjs.com/package/pacote|pacote} to fetch the manifest
  * @param {boolean} [store=true] Whether to store the installed plugin in the store
- * @returns {Plugin} New plugin
+ * @returns {Promise.<Plugin>} New plugin
  * @alias pluginManager.installPlugin
  */
 export async function installPlugin(spec, options, store = true) {
