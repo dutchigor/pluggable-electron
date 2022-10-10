@@ -15,12 +15,11 @@ const _extensionPoints = {}
 /**
  * Create new extension point and add it to the registry.
  * @param {string} name Name of the extension point.
- * @param {object|function} [ep] Custom extension point to add.
  * @returns {void}
  * @alias extensionPoints.add
  */
-export function add(name, ep) {
-  _extensionPoints[name] = ep ?? new ExtensionPoint(name)
+export function add(name) {
+  _extensionPoints[name] = new ExtensionPoint(name)
 }
 
 /**

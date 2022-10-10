@@ -20,6 +20,12 @@ class ExtensionPoint {
    */
   _extensions = []
 
+  /**
+   * @type {Array.<Object>} A list of functions to be executed when the list of extensions changes.
+   * @private
+   */
+  #changeListeners = []
+
   constructor(name) {
     this.name = name
   }
@@ -41,6 +47,8 @@ class ExtensionPoint {
     } else {
       this._extensions.push(newExt)
     }
+
+    this.#emitChange()
   }
 
   /**
@@ -51,6 +59,8 @@ class ExtensionPoint {
   unregister(name) {
     const index = this._extensions.findIndex(ext => ext.name === name)
     if (index > -1) this._extensions.splice(index, 1)
+
+    this.#emitChange()
   }
 
   /**
@@ -59,6 +69,7 @@ class ExtensionPoint {
    */
   clear() {
     this._extensions = []
+    this.#emitChange()
   }
 
   /**
@@ -104,6 +115,30 @@ class ExtensionPoint {
       }
       return tp
     }, input)
+  }
+
+  /**
+   * Register a callback to be executed if the list of extensions changes.
+   * @param {string} name Name of the listener needed if it is to be removed.
+   * @param {Function} callback The callback function to trigger on a change.
+   */
+  onRegister(name, callback) {
+    if (typeof callback === 'function') this.#changeListeners.push({ name, callback })
+  }
+
+  /**
+   * Unregister a callback from the extension list changes.
+   * @param {string} name The name of the listener to remove.
+   */
+  offRegister(name) {
+    const index = this.#changeListeners.findIndex(l => l.name === name)
+    if (index > -1) this.#changeListeners.splice(index, 1)
+  }
+
+  #emitChange() {
+    for (l of this.#changeListeners) {
+      l.callback(this)
+    }
   }
 }
 

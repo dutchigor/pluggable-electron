@@ -2,6 +2,7 @@ import Ep from './ExtensionPoint'
 
 /** @type {Ep} */
 let ep
+const changeListener = jest.fn()
 
 const objectRsp = { foo: 'bar' }
 const funcRsp = arr => {
@@ -14,6 +15,7 @@ beforeEach(() => {
   ep = new Ep('test-ep')
   ep.register('test-ext-obj', objectRsp)
   ep.register('test-ext-func', funcRsp, 10)
+  ep.onRegister('test', changeListener)
 })
 
 
@@ -37,6 +39,12 @@ it('should register extension with a default priority of 0 if not provided', () 
   })
 })
 
+it('should execute the change listeners on registering a new extension', () => {
+  changeListener.mockClear()
+  ep.register('test-change-listener', true)
+  expect(changeListener.mock.calls.length).toBeTruthy()
+})
+
 it('should unregister an extension with the provided name if it exists', () => {
   ep.unregister('test-ext-obj')
 
@@ -53,10 +61,22 @@ it('should not unregister any extensions if the provided name does not exist', (
   expect(ep._extensions.length).toBe(2)
 })
 
+it('should execute the change listeners on unregistering an extension', () => {
+  changeListener.mockClear()
+  ep.unregister('test-ext-obj')
+  expect(changeListener.mock.calls.length).toBeTruthy()
+})
+
 it('should empty the registry of all extensions on clearing', () => {
   ep.clear()
 
   expect(ep._extensions).toEqual([])
+})
+
+it('should execute the change listeners on clearing extensions', () => {
+  changeListener.mockClear()
+  ep.clear()
+  expect(changeListener.mock.calls.length).toBeTruthy()
 })
 
 it('should return the relevant extension using the get method', () => {

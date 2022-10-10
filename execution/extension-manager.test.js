@@ -46,7 +46,7 @@ describe('Add and remove', () => {
 })
 
 describe('register', () => {
-  it('should register an extension to an extension existing extension point if the point has already been created', () => {
+  it('should register an extension to an existing extension point if the point has already been created', () => {
     register('ep1', 'extension1', { foo: 'bar' })
 
     expect(get('ep1')._extensions).toContainEqual(expect.objectContaining({ name: 'extension1' }))

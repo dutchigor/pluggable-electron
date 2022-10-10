@@ -1,3 +1,8 @@
+## Version 0.4.4
+### Breaking changes!
+* Remove the ability to add custom extension points.
+* Add onRegister and offRegister functions to Extension Point to listen to changes to extensions.
+
 ## Version 0.4.3 (19/05/2022)
 * Add clear function to Activation Points to clear the registry.
 * Add remove function to Activation Points to remove a plugin from the registry.
