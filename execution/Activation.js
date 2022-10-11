@@ -10,14 +10,6 @@ import { get as getEPs, register, execute, executeSerial } from "./extension-man
 
 /**
  * A representation of a plugin's registration to an activation point
- * @prop {string} plugin Name of the registered plugin.
- * @prop {string} activationPoint Name of the activation point that is registered to.
- * @prop {string} url location of the file containing the activation function.
- * @prop {boolean} activated Whether the activation has been activated.
- */
-
-/**
- * A representation of a plugin's registration to an activation point
  * @prop {importer} importer Used to import the entry point.
  */
 class Activation {
