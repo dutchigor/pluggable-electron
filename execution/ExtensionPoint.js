@@ -53,11 +53,11 @@ class ExtensionPoint {
 
   /**
    * Remove an extension from the registry. It will no longer be part of the extension point execution.
-   * @param {string} name Name of the extension to remove.
+   * @param {RegExp } name Matcher for the name of the extension to remove.
    * @returns {void}
    */
   unregister(name) {
-    const index = this._extensions.findIndex(ext => ext.name === name)
+    const index = this._extensions.findIndex(ext => ext.name.match(name))
     if (index > -1) this._extensions.splice(index, 1)
 
     this.#emitChange()

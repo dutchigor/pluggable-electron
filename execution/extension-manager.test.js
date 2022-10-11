@@ -1,4 +1,4 @@
-import { add, remove, register, get, execute, executeSerial } from './extension-manager'
+import { add, remove, register, get, execute, executeSerial, unregisterAll } from './extension-manager'
 import ExtensionPoint from './ExtensionPoint'
 
 beforeEach(() => {
@@ -56,6 +56,27 @@ describe('register', () => {
     register('ep3', 'extension1', { foo: 'bar' })
 
     expect(get('ep3')._extensions).toContainEqual(expect.objectContaining({ name: 'extension1' }))
+  })
+})
+
+describe('unregisterAll', () => {
+  it('should unregister all extension points matching the give name regex', () => {
+    // Register example extensions
+    register('ep1', 'remove1', { foo: 'bar' })
+    register('ep2', 'remove2', { foo: 'bar' })
+    register('ep1', 'keep', { foo: 'bar' })
+
+    // Remove matching extensions
+    unregisterAll(/remove/)
+
+    // Extract all registered extensions
+    const eps = Object.values(get()).map(ep => ep._extensions)
+    const extensions = eps.flat()
+
+    // Test extracted extensions
+    expect(extensions).toContainEqual(expect.objectContaining({ name: 'keep' }))
+    expect(extensions).not.toContainEqual(expect.objectContaining({ name: 'ep1' }))
+    expect(extensions).not.toContainEqual(expect.objectContaining({ name: 'ep2' }))
   })
 })
 

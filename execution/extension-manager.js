@@ -49,6 +49,14 @@ export function register(ep, extension, response, priority) {
 }
 
 /**
+ * Remove extensions matching regular expression from all extension points.
+ * @param {RegExp} name Matcher for the name of the extension to remove.
+ */
+export function unregisterAll(name) {
+  for (ep in _extensionPoints) _extensionPoints[ep].unregister(name)
+}
+
+/**
  * Fetch extension point by name. or all extension points if no name is given.
  * @param {string} [ep] Extension point to return
  * @returns {Object.<ExtensionPoint> | ExtensionPoint} Found extension points
