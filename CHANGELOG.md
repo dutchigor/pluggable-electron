@@ -1,3 +1,6 @@
+## Version 0.5.1
+* Update dependencies to latest versions for security fix
+
 ## Version 0.5.0
 ### Breaking changes!
 * Remove the ability to add custom extension points.
