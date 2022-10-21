@@ -136,7 +136,7 @@ class ExtensionPoint {
   }
 
   #emitChange() {
-    for (l of this.#changeListeners) {
+    for (const l of this.#changeListeners) {
       l.callback(this)
     }
   }
