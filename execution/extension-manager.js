@@ -53,7 +53,7 @@ export function register(ep, extension, response, priority) {
  * @param {RegExp} name Matcher for the name of the extension to remove.
  */
 export function unregisterAll(name) {
-  for (ep in _extensionPoints) _extensionPoints[ep].unregister(name)
+  for (const ep in _extensionPoints) _extensionPoints[ep].unregister(name)
 }
 
 /**
