@@ -1,8 +1,7 @@
-import { mkdirSync, writeFileSync } from "original-fs"
 import { init } from "."
 import { join } from 'path'
 import Plugin from "./Plugin"
-import { existsSync, readFileSync, rmSync } from "fs"
+import { mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } from "fs"
 
 const pluginsDir = './testPlugins'
 const testPluginDir = './testPluginSrc'
@@ -14,13 +13,16 @@ const main = 'index'
 let plugin
 
 beforeAll(() => {
-  const pm = init({ confirmInstall: () => true }, pluginsDir)
+  const pm = init({
+    confirmInstall: () => true,
+    pluginsPath: pluginsDir,
+  })
 
   mkdirSync(testPluginDir)
 
   writeFileSync(manifest, JSON.stringify({
     name: testPluginName,
-    activationPoints: {},
+    activationPoints: [],
     main,
   }), 'utf8')
 
@@ -69,18 +71,18 @@ describe('install', () => {
       },
       name: testPluginName,
       url: `plugin://${testPluginName}/${main}`,
-      activationPoints: {}
+      activationPoints: []
     })
   })
 
   it('should create a folder for the plugin if it does not yet exist and copy the plugin files to it', () => {
-    expect(existsSync(manifest)).toBeTruthy()
+    expect(existsSync(join(pluginsDir, testPluginName))).toBeTruthy()
   })
 
   it('should replace the existing plugin files in the plugin folder if it already exist', async () => {
     writeFileSync(manifest, JSON.stringify({
       name: testPluginName,
-      activationPoints: {},
+      activationPoints: [],
       main: 'updated',
     }), 'utf8')
 
@@ -104,17 +106,19 @@ describe('install', () => {
     }), 'utf8')
 
     await expect(() => plugin._install()).rejects.toThrow('The plugin does not contain any activation points')
+    expect(plugin.active).toBe(false)
   })
 })
 
 describe('update', () => {
   let updatedPlugin
   let subscription = false
+  let beforeUpd
 
   beforeAll(async () => {
     writeFileSync(manifest, JSON.stringify({
       name: testPluginName,
-      activationPoints: {},
+      activationPoints: [],
       version: '0.0.1',
       main,
     }), 'utf8')
@@ -122,38 +126,26 @@ describe('update', () => {
     await plugin._install()
 
     plugin.subscribe('test', () => subscription = true)
+    beforeUpd = Object.assign({}, plugin)
 
-    updatedPlugin = await plugin.update()
-  })
-
-  it('should return the plugin object', () => {
-    expect(updatedPlugin).toBeInstanceOf(Plugin)
+    await plugin.update()
   })
 
   it('should not do anything if no version update is available', () => {
-    expect(updatedPlugin).toMatchObject({
-      origin: testPluginDir,
-      installOptions: {
-        version: false,
-        fullMetadata: false,
-      },
-      name: testPluginName,
-      url: `plugin://${testPluginName}/${main}`,
-      activationPoints: {}
-    })
+    expect(beforeUpd).toMatchObject(plugin)
   })
 
   it('should update the plugin files to the latest version if there is a new version available for the plugin', async () => {
     writeFileSync(manifest, JSON.stringify({
       name: testPluginName,
-      activationPoints: {},
+      activationPoints: [],
       version: '0.0.2',
       main,
     }), 'utf8')
 
     await plugin.update()
 
-    expect(updatedPlugin).toMatchObject({
+    expect(plugin).toMatchObject({
       origin: testPluginDir,
       installOptions: {
         version: false,
@@ -162,7 +154,7 @@ describe('update', () => {
       name: testPluginName,
       version: '0.0.2',
       url: `plugin://${testPluginName}/${main}`,
-      activationPoints: {}
+      activationPoints: []
     })
   })
 
@@ -171,10 +163,27 @@ describe('update', () => {
   })
 })
 
+describe('isUpdateAvailable', () => {
+  it('should return false if no new version is available', async () => {
+    await expect(plugin.isUpdateAvailable()).resolves.toBe(false)
+  })
+
+  it('should return the latest version number if a new version is available', async () => {
+    writeFileSync(manifest, JSON.stringify({
+      name: testPluginName,
+      activationPoints: [],
+      version: '0.0.3',
+      main,
+    }), 'utf8')
+
+    await expect(plugin.isUpdateAvailable()).resolves.toBe('0.0.3')
+  })
+})
+
 describe('setActive', () => {
   it('should set the plugin to be active', () => {
     plugin.setActive(true)
-    expect(plugin._active).toBeTruthy()
+    expect(plugin.active).toBeTruthy()
   })
 
   it('should execute callbacks subscribed to this plugin, providing the plugin as a parameter', () => {
@@ -188,16 +197,13 @@ describe('setActive', () => {
 
 describe('uninstall', () => {
   let subscription = false
-  beforeAll(() => {
+  beforeAll(async () => {
     plugin.subscribe('test', () => subscription = true)
-    plugin.uninstall()
+    await plugin.uninstall()
   })
 
-  it('should mark the plugin as inactive and to be uninstalled', () => {
-    expect(plugin).toMatchObject({
-      _active: false,
-      _toUninstall: true,
-    })
+  it('should remove the installed plugin from the plugins folder', () => {
+    expect(existsSync(join(pluginsDir, testPluginName))).toBe(false)
   })
 
   it('should execute callbacks subscribed to this plugin, providing the plugin as a parameter', () => {

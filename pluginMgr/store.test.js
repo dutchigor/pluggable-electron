@@ -1,4 +1,4 @@
-import { getActivePlugins, getAllPlugins, getPlugin, installPlugin } from './store'
+import { getActivePlugins, getAllPlugins, getPlugin, installPlugins } from './store'
 import { init } from "."
 import { join } from 'path'
 import Plugin from "./Plugin"
@@ -20,20 +20,23 @@ const inactiveManifest = join(inactivePluginDir, 'package.json')
 // Mock name for the entry file in the plugins
 const main = 'index'
 
-/** @type Plugin */
-let activePlugin
-/** @type Plugin */
-let inactivePlugin
+/** @type Array.<Plugin> */
+let activePlugins
+/** @type Array.<Plugin> */
+let inactivePlugins
 
 beforeAll(async () => {
   // Initialize pluggable Electron
-  const pm = init({ confirmInstall: () => true }, pluginsDir)
+  init({
+    confirmInstall: () => true,
+    pluginsPath: pluginsDir,
+  })
 
   // Create active plugin
   mkdirSync(activePluginDir)
   writeFileSync(activeManifest, JSON.stringify({
     name: activePluginName,
-    activationPoints: {},
+    activationPoints: [],
     main,
   }), 'utf8')
 
@@ -41,14 +44,17 @@ beforeAll(async () => {
   mkdirSync(inactivePluginDir)
   writeFileSync(inactiveManifest, JSON.stringify({
     name: inactivePluginName,
-    activationPoints: {},
+    activationPoints: [],
     main,
   }), 'utf8')
 
   // Install plugins
-  activePlugin = await installPlugin(activePluginDir, {}, true)
-  activePlugin.setActive(true)
-  inactivePlugin = await installPlugin(inactivePluginDir, {}, true)
+  activePlugins = await installPlugins([activePluginDir], true)
+  activePlugins[0].setActive(true)
+  inactivePlugins = await installPlugins([{
+    specifier: inactivePluginDir,
+    activate: false
+  }], true)
 })
 
 afterAll(() => {
@@ -58,16 +64,24 @@ afterAll(() => {
   rmSync(inactivePluginDir, { recursive: true })
 })
 
-describe('installPlugin', () => {
+describe('installPlugins', () => {
   it('should create a new plugin found at the given location and return it if store is false', async () => {
-    const res = await installPlugin(activePluginDir, {}, false)
+    const res = await installPlugins([activePluginDir], false)
 
-    expect(res).toBeInstanceOf(Plugin)
+    expect(res[0]).toBeInstanceOf(Plugin)
   })
 
   it('should create a new plugin found at the given location and register it if store is true', () => {
-    expect(activePlugin).toBeInstanceOf(Plugin)
-    expect(getPlugin(activePluginName)).toBe(activePlugin)
+    expect(activePlugins[0]).toBeInstanceOf(Plugin)
+    expect(getPlugin(activePluginName)).toBe(activePlugins[0])
+  })
+
+  it('should activate the installed plugin by default', () => {
+    expect(getPlugin(activePluginName).active).toBe(true)
+  })
+
+  it('should set plugin to inactive if activate is set to false in the install options', async () => {
+    expect(inactivePlugins[0].active).toBe(false)
   })
 })
 
@@ -83,12 +97,12 @@ describe('getPlugin', () => {
 
 describe('getAllPlugins', () => {
   it('should return a list of all registered plugins', () => {
-    expect(getAllPlugins()).toEqual([activePlugin, inactivePlugin])
+    expect(getAllPlugins()).toEqual([activePlugins[0], inactivePlugins[0]])
   })
 })
 
 describe('getActivePlugins', () => {
   it('should return a list of all and only the registered plugins that are active', () => {
-    expect(getActivePlugins()).toEqual([activePlugin])
+    expect(getActivePlugins()).toEqual(activePlugins)
   })
 })

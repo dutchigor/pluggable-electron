@@ -13,26 +13,31 @@
  * @property {boolean} active Whether this plugin should be activated when its activation points are triggered.
  */
 
+/**
+ * @typedef {Object.<string, any>} installOptions The {@link https://www.npmjs.com/package/pacote|pacote options}
+ * used to install the plugin.
+ * @param {string} specifier the NPM specifier that identifies the package.
+ * @param {boolean} [activate=true] Whether this plugin should be activated after installation.
+ */
+
 import { ipcRenderer } from "electron"
 
 /**
  * Install a new plugin.
- * @param {string} spec NPM package specifier of the plugin. Any form understood by NPM will work here.
- *     See [npm-install]{@link https://docs.npmjs.com/cli/v6/commands/npm-install}.
- * @param {Object} [options] The options passed to {@link https://www.npmjs.com/package/pacote|pacote} to fetch the manifest, including version.
- * @param {boolean} [activate=true] Whether the plugin should be activated on install.
+ * @param {Array.<installOptions | string>} plugins A list of NPM specifiers, or installation configuration objects.
  * @returns {Promise.<plugin>} plugin as defined by the main process. Has property cancelled set to true if installation was cancelled in the main process.
  * @alias facade.install
  */
-export function install(spec, options, activate) { return ipcRenderer.invoke('pluggable:install', spec, options, activate) }
+export function install(plugins) { return ipcRenderer.invoke('pluggable:install', plugins) }
 
 /**
- * Mark plugin for removal. It will then be removed the next time the plugin is initialised (as by setupPlugins in the main process).
- * @param {string} name Name of the plugin to uninstall.
+ * Uninstall provided plugins
+ * @param {Array.<string>} plugins List of names of plugins to uninstall.
+ * @param {boolean} reload Whether to reload all renderers after updating the plugins.
  * @returns {Promise.<boolean>} Whether marking the plugin was successful.
  * @alias facade.uninstall
  */
-export function uninstall(name) { return ipcRenderer.invoke('pluggable:uninstall', name) }
+export function uninstall(plugins, reload) { return ipcRenderer.invoke('pluggable:uninstall', plugins, reload = true) }
 
 /**
  * Fetch a list of all the active plugins.
@@ -42,12 +47,20 @@ export function uninstall(name) { return ipcRenderer.invoke('pluggable:uninstall
 export function getActive() { return ipcRenderer.invoke('pluggable:getActivePlugins') }
 
 /**
- * Update a plugin to its latest version.
- * @param {string} name Name of the plugin to update.
+ * Update provided plugins to its latest version.
+ * @param {Array.<string>} plugins List of plugins to update by name.
+ * @param {boolean} reload Whether to reload all renderers after updating the plugins.
  * @returns {Promise.<plugin>} Updated plugin as defined by the main process.
  * @alias facade.update
  */
-export function update(name) { return ipcRenderer.invoke('pluggable:update', name) }
+export function update(plugins, reload = true) { return ipcRenderer.invoke('pluggable:update', plugins, reload) }
+
+/**
+ * Check if an update is available for provided plugins.
+ * @param {Array.<string>} plugin List of plugin names to check for available updates.
+ * @returns {Object.<string | false>} Object with plugins as keys and new version if update is available or false as values.
+ */
+export function updatesAvailable(plugin) { return ipcRenderer.invoke('pluggable:updatesAvailable', plugin) }
 
 /**
  * Toggle a plugin's active state. This determines if a plugin should be loaded in initialisation.

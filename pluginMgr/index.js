@@ -1,26 +1,26 @@
-import { readFileSync, rmdirSync } from "fs"
+import { readFileSync } from "fs"
 import { protocol } from 'electron'
-import { normalize, resolve } from "path"
+import { normalize } from "path"
 
 import Plugin from "./Plugin"
-import { getAllPlugins, removePlugin, persistPlugins, installPlugin, getPlugin, getActivePlugins, addPlugin } from "./store"
+import { getAllPlugins, removePlugin, persistPlugins, installPlugins, getPlugin, getActivePlugins, addPlugin } from "./store"
 import { pluginsPath as storedPluginsPath, setPluginsPath, getPluginsFile, setConfirmInstall } from './globals'
 import router from "./router"
 
 /**
  * Sets up the required communication between the main and renderer processes.
  * Additionally sets the plugins up using {@link usePlugins} if a pluginsPath is provided.
- * @param {Object} facade configuration for setting up the renderer facade.
- * @param {confirmInstall} facade.confirmInstall Function to validate that a plugin should be installed. 
- * @param {Boolean} [facade.use=true] Whether to make a facade to the plugins available in the renderer.
- * @param {string} [pluginsPath] Optional path to the plugins folder.
+ * @param {Object} options configuration for setting up the renderer facade.
+ * @param {confirmInstall} [options.confirmInstall] Function to validate that a plugin should be installed. 
+ * @param {Boolean} [options.useFacade=true] Whether to make a facade to the plugins available in the renderer.
+ * @param {string} [options.pluginsPath] Optional path to the plugins folder.
  * @returns {pluginManager|Object} A set of functions used to manage the plugin lifecycle if usePlugins is provided.
  * @function
  */
-export function init(facade, pluginsPath) {
-  if (!facade.hasOwnProperty('use') || facade.use) {
+export function init(options) {
+  if (!options.hasOwnProperty('useFacade') || options.useFacade) {
     // Store the confirmInstall function
-    setConfirmInstall(facade.confirmInstall)
+    setConfirmInstall(options.confirmInstall)
     // Enable IPC to be used by the facade
     router()
   }
@@ -29,8 +29,8 @@ export function init(facade, pluginsPath) {
   registerPluginProtocol()
 
   // perform full setup if pluginsPath is provided
-  if (pluginsPath) {
-    return usePlugins(pluginsPath)
+  if (options.pluginsPath) {
+    return usePlugins(options.pluginsPath)
   }
 
   return {}
@@ -93,22 +93,15 @@ export function usePlugins(pluginsPath) {
  * @param {Object} plg Plugin info
  */
 function loadPlugin(plg) {
-  if (plg._toUninstall) {
-    // Remove plugin if it is set to be uninstalled
-    const plgPath = resolve(storedPluginsPath, plg.name)
-    rmdirSync(plgPath, { recursive: true })
+  // Create new plugin, populate it with plg details and save it to the store
+  const plugin = new Plugin()
 
-  } else {
-    // Create new plugin, populate it with plg details and save it to the store
-    const plugin = new Plugin()
-
-    for (const key in plg) {
-      plugin[key] = plg[key]
-    }
-
-    addPlugin(plugin, false)
-    plugin.subscribe('pe-persist', persistPlugins)
+  for (const key in plg) {
+    plugin[key] = plg[key]
   }
+
+  addPlugin(plugin, false)
+  plugin.subscribe('pe-persist', persistPlugins)
 }
 
 /**
@@ -121,7 +114,7 @@ export function getStore() {
   }
 
   return {
-    installPlugin,
+    installPlugins,
     getPlugin,
     getAllPlugins,
     getActivePlugins,

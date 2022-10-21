@@ -1,3 +1,14 @@
+## Version 0.6.0
+### Breaking changes!
+* The parameters for the init function have moved to an options object to support further options in the future. See API specification.
+* The installPlugin response from init has been renamed to installPlugins and expects an array of plugins as input.
+* The confirmInstall function will now receive a list of specifiers as parameter to handle the installation of multiple plugins at once.
+* The update method on a plugin will now reload all renderers to remove any legacy extensions.
+* The uninstall method on a plugin will now remove the plugin directly and reload all renderers remove any legacy extensions.
+
+### Features
+* Added the isUpdateAvailable method to the Plugin class
+
 ## Version 0.5.1
 * Update dependencies to latest versions for security fix
 

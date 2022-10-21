@@ -1,5 +1,5 @@
 import { usePlugins, getStore, init } from './index'
-import { installPlugin, getPlugin, getAllPlugins, getActivePlugins, addPlugin } from './store'
+import { installPlugins, getPlugin, getAllPlugins, getActivePlugins, addPlugin } from './store'
 import Plugin from './Plugin'
 import { existsSync, rmSync, mkdirSync, writeFileSync } from 'fs'
 import { join } from 'path'
@@ -7,8 +7,6 @@ import { protocol } from 'electron'
 
 // Set up variables for test folders and test plugins.
 const pluginDir = './testPlugins'
-const toRemovePluginName = 'pluginToRemove'
-const toRemovePluginDir = join(pluginDir, toRemovePluginName)
 const registeredPluginName = 'registered-plugin'
 const demoPlugin = {
   origin: ".\\demo-plugin\\demo-plugin-1.5.0.tgz",
@@ -23,26 +21,8 @@ const demoPlugin = {
   ],
   main: "index.js",
   _active: true,
-  _toUninstall: false,
   url: "plugin://demo-plugin/index.js"
 }
-const pluginToRemove = {
-  origin: ".\\demo-plugin\\demo-plugin-1.5.0.tgz",
-  installOptions: {
-    version: false,
-    fullMetadata: false
-  },
-  name: "pluginToRemove",
-  version: "1.5.0",
-  activationPoints: [
-    "init"
-  ],
-  main: "index.js",
-  _active: false,
-  _toUninstall: true,
-  url: "plugin://demo-plugin/index.js"
-}
-
 
 describe('before setting a plugin path', () => {
   describe('getStore', () => {
@@ -78,10 +58,9 @@ describe('after setting a plugin path', () => {
   beforeAll(() => {
     // Create folders to contain plugins
     mkdirSync(pluginDir)
-    mkdirSync(toRemovePluginDir)
 
     // Create initial 
-    writeFileSync(join(pluginDir, 'plugins.json'), JSON.stringify({ pluginToRemove, demoPlugin }), 'utf8')
+    writeFileSync(join(pluginDir, 'plugins.json'), JSON.stringify({ demoPlugin }), 'utf8')
 
     // Register a plugin before using plugins
     const registeredPLugin = new Plugin(registeredPluginName)
@@ -99,7 +78,7 @@ describe('after setting a plugin path', () => {
   describe('getStore', () => {
     it('should return the plugin lifecycle functions if no plugin path is provided', () => {
       expect(getStore()).toEqual({
-        installPlugin,
+        installPlugins,
         getPlugin,
         getAllPlugins,
         getActivePlugins,
@@ -110,7 +89,7 @@ describe('after setting a plugin path', () => {
   describe('usePlugins', () => {
     it('should return the plugin lifecycle functions if a plugin path is provided', () => {
       expect(pm).toEqual({
-        installPlugin,
+        installPlugins,
         getPlugin,
         getAllPlugins,
         getActivePlugins,
@@ -119,11 +98,6 @@ describe('after setting a plugin path', () => {
 
     it('should load the plugins defined in plugins.json in the provided plugins folder if a plugin path is provided', () => {
       expect(getPlugin('demoPlugin')).toEqual(demoPlugin)
-    })
-
-    it('should remove all and only the plugins marked to be uninstalled', () => {
-      expect(() => getPlugin(toRemovePluginName)).toThrowError(`Plugin ${toRemovePluginName} does not exist`)
-      expect(existsSync(toRemovePluginName)).toBe(false)
     })
 
     it('should unregister any registered plugins before registering the new ones if a plugin path is provided', () => {
@@ -158,10 +132,13 @@ describe('init', () => {
   })
 
   it('should return the plugin lifecycle functions if a plugin path is provided', () => {
-    pm = init({ confirmInstall: () => true }, pluginDir)
+    pm = init({
+      confirmInstall: () => true,
+      pluginsPath: pluginDir,
+    })
 
     expect(pm).toEqual({
-      installPlugin,
+      installPlugins,
       getPlugin,
       getAllPlugins,
       getActivePlugins,
