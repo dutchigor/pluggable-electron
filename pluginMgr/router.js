@@ -48,15 +48,15 @@ export default function () {
     checkPluginsPath()
 
     // Update all provided plugins
-    let updated = false
+    let updated = []
     for (const plg of plugins) {
       const plugin = getPlugin(plg)
       const res = plugin.update()
-      if (res) updated = true
+      if (res) updated.push(plugin)
     }
 
     // Reload all renderer pages if needed
-    if (updated && reload) webContents.getAllWebContents().forEach(wc => wc.reload())
+    if (updated.length && reload) webContents.getAllWebContents().forEach(wc => wc.reload())
 
     return JSON.parse(JSON.stringify(updated))
   })

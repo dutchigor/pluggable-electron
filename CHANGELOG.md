@@ -5,12 +5,15 @@
 * The confirmInstall function will now receive a list of specifiers as parameter to handle the installation of multiple plugins at once.
 * The update method on a plugin will now reload all renderers to remove any legacy extensions.
 * The uninstall method on a plugin will now remove the plugin directly and reload all renderers remove any legacy extensions.
+* The setup function in the renderer had been moved from the activationPoints object to the parent object to handle a build conflict.
+* The facade functions are moved from preload to a facade export in the renderer. The facade still needs to be registered during preload but should now just be called instead of exposed.
 
 ### Features
-* Added the isUpdateAvailable method to the Plugin class
+* Added the isUpdateAvailable method to the Plugin class.
+* Added the triggerExport method on the Plugin class as returned by the facade functions. This allows for executing lifecycle functions on individual plugins, like on installation or update.
 
 ## Version 0.5.1
-* Update dependencies to latest versions for security fix
+* Update dependencies to latest versions for security fix.
 
 ## Version 0.5.0
 ### Breaking changes!

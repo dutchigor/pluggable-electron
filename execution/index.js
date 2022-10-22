@@ -3,6 +3,9 @@ import { definePresetEps, setImporter } from "./import-manager.js"
 export * as extensionPoints from './extension-manager.js';
 export * as activationPoints from './activation-manager.js';
 export { default as ExtensionPoint } from './ExtensionPoint.js';
+export * as facade from './facade'
+
+if (!window.pluggableElectronIpc) console.warn('Facade is not registered in preload. Facade functions will throw an error if used.')
 
 /**
  * Set the renderer options for Pluggable Electron. Should be called before any other Pluggable Electron function in the renderer

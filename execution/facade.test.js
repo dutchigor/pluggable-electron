@@ -3,17 +3,22 @@ jest.mock('electron', () => {
 
   return {
     ipcMain: {
-      handle: (channel, callback) => {
+      handle(channel, callback) {
         handlers[channel] = callback
       }
     },
     ipcRenderer: {
-      invoke: (channel, ...args) => {
+      invoke(channel, ...args) {
         return Promise.resolve(handlers[channel].call(undefined, 'event', ...args))
       }
     },
     webContents: {
       getAllWebContents: jest.fn(() => [])
+    },
+    contextBridge: {
+      exposeInMainWorld(key, val) {
+        global.window = { [key]: val }
+      }
     }
   }
 })
@@ -44,7 +49,8 @@ jest.mock('../pluginMgr/store', () => {
 
 const { rmSync } = require('fs')
 const { webContents } = require('electron')
-const { getActive, install, uninstall, update, toggleActive, updatesAvailable } = require('./index')
+const useFacade = require('../facade/index')
+const { getActive, install, toggleActive, uninstall, update, updatesAvailable } = require('./facade')
 const { setPluginsPath, setConfirmInstall } = require('../pluginMgr/globals')
 const router = require('../pluginMgr/router')
 const { getPlugin, getActivePlugins, removePlugin } = require('../pluginMgr/store')
@@ -55,6 +61,7 @@ const confirmInstall = jest.fn(() => true)
 beforeAll(async () => {
   setPluginsPath(pluginsPath)
   router()
+  useFacade()
 })
 
 afterAll(() => {
@@ -65,7 +72,7 @@ describe('install', () => {
   it('should return cancelled state if the confirmPlugin callback returns falsy', async () => {
     setConfirmInstall(() => false)
     const plugins = await install(['test-install'])
-    expect(plugins).toEqual({ cancelled: true })
+    expect(plugins).toEqual(false)
   })
 
   it('should make the confirmInstall callback available to the install handler if facade is used', async () => {
