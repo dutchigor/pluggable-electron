@@ -1,4 +1,5 @@
-import { setup, register, trigger, remove, clear, get } from "./activation-manager";
+import { setup } from './index'
+import { register, trigger, remove, clear, get } from "./activation-manager";
 import { add } from './extension-manager'
 
 let mockPlugins = {}
@@ -143,7 +144,7 @@ describe('trigger', () => {
         activationPoints: ['ap1']
       })
 
-      await expect(trigger('ap1')).rejects.toThrow(/was triggered but does not exist on plugin/)
+      await expect(() => trigger('ap1')).rejects.toThrow(/was triggered but does not exist on plugin/)
     }
   )
 

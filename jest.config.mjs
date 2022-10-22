@@ -5,13 +5,13 @@ export default {
       runner: "@kayahr/jest-electron-runner/main",
       testEnvironment: "node",
       roots: [
-        "<rootDir>/execution",
         "<rootDir>/pluginMgr",
       ],
     },
     {
       preset: "rollup-jest",
       roots: [
+        "<rootDir>/execution",
         "<rootDir>/facade",
       ],
     }

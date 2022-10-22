@@ -5,26 +5,6 @@ import Activation from "./Activation.js"
  * @namespace activationPoints
  */
 
-/**
- * @private
- * Store setup options
- */
-let presetEPs
-
-/**
- * Set the renderer options for Pluggable Electron. Should be called before any other Pluggable Electron function in the renderer
- * @param {Object} options
- * @param {activation~importer} options.importer The callback function used to import the plugin entry points.
- * @param {Boolean|null} [options.presetEPs=false] Whether the Extension Points have been predefined (true),
- * can be created on the fly(false) or should not be provided through the input at all (null).
- * @returns {void}
- * @alias activationPoints.setup
- */
-export function setup(options) {
-  Activation.importer = options.importer
-  presetEPs = options.hasOwnProperty('presetEPs') ? options.presetEPs : false
-}
-
 /** 
  * @constant {Array.<Activation>} activationRegister
  * @private
@@ -34,7 +14,7 @@ const activationRegister = []
 
 /**
  * Register a plugin with its activation points (as defined in its manifest).
- * @param {plugin} plugin plugin object as provided by the main process.
+ * @param {Plugin} plugin plugin object as provided by the main process.
  * @returns {void}
  * @alias activationPoints.register
  */
@@ -66,7 +46,7 @@ export async function trigger(activationPoint) {
     // Trigger each relevant activation point from the register and return an array of trigger promises
     activationRegister.reduce((triggered, act) => {
       if (act.activationPoint === activationPoint) {
-        triggered.push(act.trigger(presetEPs))
+        triggered.push(act.trigger())
       }
       return triggered
     }, [])
