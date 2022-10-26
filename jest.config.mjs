@@ -11,9 +11,16 @@ export default {
     {
       preset: "rollup-jest",
       roots: [
-        "<rootDir>/execution",
         "<rootDir>/facade",
       ],
+    },
+    {
+      preset: "rollup-jest",
+      runner: '@kayahr/jest-electron-runner',
+      testEnvironment: '@kayahr/jest-electron-runner/environment',
+      roots: [
+        "<rootDir>/execution",
+      ]
     }
   ]
 }
