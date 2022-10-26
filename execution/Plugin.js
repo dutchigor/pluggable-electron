@@ -1,6 +1,9 @@
 import { callExport } from "./import-manager"
 
-export default class Plugin {
+/**
+ * A slimmed down representation of a plugin for the renderer.
+ */
+class Plugin {
   /** @type {string} Name of the package. */
   name
 
@@ -20,7 +23,13 @@ export default class Plugin {
     this.active = active
   }
 
+  /**
+   * Trigger an exported callback on the plugin's main file.
+   * @param {string} exp exported callback to trigger.
+   */
   triggerExport(exp) {
     callExport(this.url, exp, this.name)
   }
 }
+
+export default Plugin

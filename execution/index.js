@@ -2,8 +2,8 @@ import { definePresetEps, setImporter } from "./import-manager.js"
 
 export * as extensionPoints from './extension-manager.js';
 export * as activationPoints from './activation-manager.js';
+export * as plugins from './facade'
 export { default as ExtensionPoint } from './ExtensionPoint.js';
-export * as facade from './facade'
 
 if (!window.pluggableElectronIpc) console.warn('Facade is not registered in preload. Facade functions will throw an error if used.')
 
@@ -14,7 +14,6 @@ if (!window.pluggableElectronIpc) console.warn('Facade is not registered in prel
  * @param {Boolean|null} [options.presetEPs=false] Whether the Extension Points have been predefined (true),
  * can be created on the fly(false) or should not be provided through the input at all (null).
  * @returns {void}
- * @alias activationPoints.setup
  */
 export function setup(options) {
   setImporter(options.importer)

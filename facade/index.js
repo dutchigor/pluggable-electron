@@ -1,7 +1,7 @@
 import { ipcRenderer, contextBridge } from "electron"
 
 export default function useFacade() {
-  contextBridge.exposeInMainWorld('pluggableElectronIpc', {
+  const interfaces = {
     install(plugins) {
       return ipcRenderer.invoke('pluggable:install', plugins)
     },
@@ -20,5 +20,11 @@ export default function useFacade() {
     toggleActive(plugin, active) {
       return ipcRenderer.invoke('pluggable:togglePluginActive', plugin, active)
     },
-  })
+  }
+
+  if (contextBridge) {
+    contextBridge.exposeInMainWorld('pluggableElectronIpc', interfaces)
+  }
+
+  return interfaces
 }

@@ -32,6 +32,7 @@ jest.mock('../pluginMgr/store', () => {
   class Plugin {
     constructor(name) {
       this.name = name
+      this.activationPoints = ['test']
     }
     setActive = setActive
     uninstall = uninstall
@@ -41,7 +42,7 @@ jest.mock('../pluginMgr/store', () => {
 
   return {
     getPlugin: jest.fn(name => new Plugin(name)),
-    getActivePlugins: jest.fn(() => []),
+    getActivePlugins: jest.fn(() => [new Plugin('test')]),
     installPlugins: jest.fn(async plugins => plugins.map(name => new Plugin(name))),
     removePlugin: jest.fn()
   }
@@ -49,11 +50,12 @@ jest.mock('../pluginMgr/store', () => {
 
 const { rmSync } = require('fs')
 const { webContents } = require('electron')
-const useFacade = require('../facade/index')
-const { getActive, install, toggleActive, uninstall, update, updatesAvailable } = require('./facade')
+const useFacade = require('./index')
+const { getActive, install, toggleActive, uninstall, update, updatesAvailable, registerActive } = require('../execution/facade')
 const { setPluginsPath, setConfirmInstall } = require('../pluginMgr/globals')
 const router = require('../pluginMgr/router')
 const { getPlugin, getActivePlugins, removePlugin } = require('../pluginMgr/store')
+const { get: getActivations } = require('../execution/activation-manager')
 
 const pluginsPath = './testPlugins'
 const confirmInstall = jest.fn(() => true)
@@ -75,17 +77,25 @@ describe('install', () => {
     expect(plugins).toEqual(false)
   })
 
-  it('should make the confirmInstall callback available to the install handler if facade is used', async () => {
+  it('should perform a security check of the install using confirmInstall if facade is used', async () => {
     setConfirmInstall(confirmInstall)
     await install(['test-install'])
     expect(confirmInstall.mock.calls.length).toBeTruthy()
+  })
+
+  it('should register all installed plugins', async () => {
+    const pluginName = 'test-install'
+    await install([pluginName])
+    expect(getActivations()).toContainEqual(expect.objectContaining({
+      plugin: pluginName
+    }))
   })
 
   it('should return a list of plugins', async () => {
     setConfirmInstall(confirmInstall)
     const pluginName = 'test-install'
     const plugins = await install([pluginName])
-    expect(plugins).toEqual([{ name: pluginName }])
+    expect(plugins).toEqual([expect.objectContaining({ name: pluginName })])
   })
 })
 
@@ -115,6 +125,15 @@ describe('getActive', () => {
     getActivePlugins.mockClear()
     await getActive()
     expect(getActivePlugins.mock.calls.length).toBeTruthy()
+  })
+})
+
+describe('registerActive', () => {
+  it('should register all active plugins', async () => {
+    await registerActive()
+    expect(getActivations()).toContainEqual(expect.objectContaining({
+      plugin: 'test'
+    }))
   })
 })
 
