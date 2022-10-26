@@ -38,9 +38,6 @@
       ]
     }
   },
-  "files": [
-    "dist/*"
-  ],
   "scripts": {
     "docs": "node docs/genDocs.js",
     "build": "rollup --config",
