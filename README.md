@@ -1,9 +1,13 @@
 # Pluggable Electron
-<!-- PROJECT SHIELDS: See https://github.com/badges/shields -->
+![package-size](https://img.shields.io/bundlephobia/min/pluggable-electron)
+![stars](https://img.shields.io/github/stars/dutchigor/pluggable-electron)
+![license](https://img.shields.io/github/license/dutchigor/pluggable-electron)
+![language](https://img.shields.io/github/languages/top/dutchigor/pluggable-electron)
+![vulnerabilities](https://img.shields.io/snyk/vulnerabilities/npm/pluggable-electron)
+![version](https://img.shields.io/npm/v/pluggable-electron)
+![electron](https://img.shields.io/npm/dependency-version/pluggable-electron/peer/electron)
+![coverage](./shields/coverage.svg)
 
-<!-- PROJECT LOGO -->
-
-<!-- TABLE OF CONTENTS -->
 <!-- TOC depthfrom:2 depthto:3 -->
 
 * [What is Pluggable Electron](#what-is-pluggable-electron)
