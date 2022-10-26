@@ -1,5 +1,5 @@
 import { usePlugins, getStore, init } from './index'
-import { installPlugins, getPlugin, getAllPlugins, getActivePlugins, addPlugin } from './store'
+import { installPlugins, getPlugin, getAllPlugins, getActivePlugins, addPlugin, removePlugin } from './store'
 import Plugin from './Plugin'
 import { existsSync, rmSync, mkdirSync, writeFileSync } from 'fs'
 import { join } from 'path'
@@ -82,6 +82,7 @@ describe('after setting a plugin path', () => {
         getPlugin,
         getAllPlugins,
         getActivePlugins,
+        removePlugin,
       })
     })
   })
@@ -93,6 +94,7 @@ describe('after setting a plugin path', () => {
         getPlugin,
         getAllPlugins,
         getActivePlugins,
+        removePlugin,
       })
     })
 
@@ -142,6 +144,7 @@ describe('init', () => {
       getPlugin,
       getAllPlugins,
       getActivePlugins,
+      removePlugin,
     })
   })
 })

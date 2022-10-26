@@ -22,7 +22,7 @@ const plugins = {}
  * @alias pluginManager.getPlugin
  */
 export function getPlugin(name) {
-  if (!plugins.hasOwnProperty(name)) {
+  if (!Object.prototype.hasOwnProperty.call(plugins, name)) {
     throw new Error(`Plugin ${name} does not exist`)
   }
 
@@ -46,11 +46,11 @@ export function getActivePlugins() {
 }
 
 /**
- * @private
  * Remove plugin from store and maybe save stored plugins to file
  * @param {string} name Name of the plugin to remove
  * @param {boolean} persist Whether to save the changes to plugins to file
  * @returns {boolean} Whether the delete was successful
+ * @alias pluginManager.removePlugin
  */
 export function removePlugin(name, persist = true) {
   const del = delete plugins[name]

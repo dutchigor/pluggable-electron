@@ -18,7 +18,7 @@ import router from "./router"
  * @function
  */
 export function init(options) {
-  if (!options.hasOwnProperty('useFacade') || options.useFacade) {
+  if (!Object.prototype.hasOwnProperty.call(options, 'useFacade') || options.useFacade) {
     // Store the confirmInstall function
     setConfirmInstall(options.confirmInstall)
     // Enable IPC to be used by the facade
@@ -118,5 +118,6 @@ export function getStore() {
     getPlugin,
     getAllPlugins,
     getActivePlugins,
+    removePlugin,
   }
 }
