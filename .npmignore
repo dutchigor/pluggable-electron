@@ -1,3 +1,4 @@
-docs
+/docs
 .gitmodules
 rollup.*
+/coverage
