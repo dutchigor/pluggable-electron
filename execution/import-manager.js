@@ -1,9 +1,5 @@
 import { get as getEPs, register, execute, executeSerial } from "./extension-manager.js"
 /**
- * @private
- */
-
-/**
  * Used to import a plugin entry point.
  * Ensure your bundler does no try to resolve this import as the plugins are not known at build time.
  * @callback importer
@@ -11,10 +7,14 @@ import { get as getEPs, register, execute, executeSerial } from "./extension-man
  * @returns {module} The module containing the entry point function.
  */
 
-/** @type {importer} */
+/**
+ * @private
+ * @type {importer}
+ */
 export let importer
 
 /**
+ * @private
  * Set the plugin importer function.
  * @param {importer} callback Callback to import plugins.
  */
@@ -22,10 +22,14 @@ export function setImporter(callback) {
   importer = callback
 }
 
-/** @type {Boolean|null} */
+/**
+ * @private
+ * @type {Boolean|null}
+ */
 export let presetEPs
 
 /**
+ * @private
  * Define how extension points are accessed.
  * @param {Boolean|null} peps Whether extension points are predefined.
  */
@@ -34,10 +38,11 @@ export function definePresetEps(peps) {
 }
 
 /**
- * 
- * @param {string} url 
- * @param {string} exp 
- * @param {string} [plugin] 
+ * @private
+ * Call exported function on imported module.
+ * @param {string} url @see Activation
+ * @param {string} exp Export to call
+ * @param {string} [plugin] @see Activation
  */
 export async function callExport(url, exp, plugin) {
   if (!importer) throw new Error('Importer callback has not been set')

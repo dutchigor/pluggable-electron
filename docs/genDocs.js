@@ -29,7 +29,7 @@ createDoc(
 
 // Generate renderer documentation
 createDoc(
-  ['execution/!(*.test).js', 'facade/!(*.test).js'],
+  ['execution/!(*.test).js',],
   'execution-API.hbs',
   'Execution-API.md'
 )

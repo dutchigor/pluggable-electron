@@ -7,8 +7,8 @@
 <!-- TOC depthfrom:2 depthto:3 -->
 
 * [What is Pluggable Electron](#what-is-pluggable-electron)
-  * [:heavy_exclamation_mark: Notice :heavy_exclamation_mark:](#heavy_exclamation_mark-notice-heavy_exclamation_mark)
 * [Introduction](#introduction)
+  * [❗Notice❗](#notice)
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
@@ -19,17 +19,16 @@
   * [Installing plugins](#installing-plugins)
   * [End result](#end-result)
   * [Further functionality](#further-functionality)
+* [Demo](#demo)
 * [Roadmap](#roadmap)
 * [Contributing](#contributing)
+* [Release Notes](#release-notes)
 * [License](#license)
 * [Contact](#contact)
 
 <!-- /TOC -->
 ## What is Pluggable Electron
 **Pluggable Electron is a framework to build Electron apps that can be extended by other parties.** 
-
-### :heavy_exclamation_mark: Notice :heavy_exclamation_mark: 
-Note that this project is under active development. I'll try to keep the main branch in working order so feel free to try it out and [report](https://github.com/dutchigor/pluggable-electron/issues) it if you have any questions of find any issues. But expect breaking changes still at this point.
 
 ## Introduction
 
@@ -40,6 +39,11 @@ The framework includes the tools necessary to manage the whole life cycle of plu
 The framework uses [inversion of control](https://en.wikipedia.org/wiki/Inversion_of_control) and [dependency inversion](https://en.wikipedia.org/wiki/Dependency_inversion_principle) principles for this.
 
 ![Framework process](https://github.com/dutchigor/pluggable-electron/wiki/images/Pluggable-Electron-design.svg)
+
+### ❗Notice❗
+As of version 0.6.0 the largest development effort seems to be done. I will try to keep the interface as steady as possible from now on but as always, changes can happen.
+
+Version 0.6.0 has however included quite a number of breaking changes to ensure all the necessary interfaces and features are now included. For people migrating from an earlier version, please see the [release notes](./CHANGELOG.md) for how to update your code.
 
 ## Getting Started
 
@@ -58,7 +62,7 @@ npm install pluggable-electron
 
 ## Usage
 
-Below you wil find a quick start guide on how to set Pluggable Electron up. A full guide can be found in the [wiki](github.com/dutchigor/pluggable-electron/wiki)
+Below you will find a quick start guide on how to set Pluggable Electron up. A full guide can be found in the [wiki](github.com/dutchigor/pluggable-electron/wiki)
 
 The framework is built around the concepts of Extension points and Plugins
 
@@ -87,10 +91,10 @@ See the API for the activation point manager [here](https://github.com/dutchigor
 
 ```js
 // renderer/index.js
-import { activationPoints } from "pluggable-electron/renderer"
+import { setup, activationPoints } from "pluggable-electron/renderer"
 
 // Enable the activation points
-activationPoints.setup({
+setup({
   // Provide the import function
   importer: async (pluginPath) => import( /* webpackIgnore: true */ pluginPath)
 })
@@ -113,14 +117,16 @@ A plugin is an npm package with activation points added to the package.json.
    ...
 }
 ```
-The main file of this plugin should include a function by the name of the activation point. This function will be be triggered by the activation point and be passed an object containing a function to register extensions to extension points by default. An extension can be a callback or object returned to the register method.
+
+The main file of this plugin should include a function for each of the activation points listed in the package.json. This function will be be triggered by the activation point and be passed an object containing a function to register extensions to extension points by default. An extension can be a callback or object returned to the register method.
 ```javascript
 // index.js
 export function init (extensionPoints) {
    // Mock function for adding a menu item
    const yourCustomExtension = (varFromExtensionPoint) => {
       // your extension code here.
-      // varFromExtensionPoint is provided as a parameter when the extension point is executed
+      // varFromExtensionPoint is provided as a parameter when the extension point is executed;
+      // purchaseMenu in the example above.
    }
 
   // Register to purchase_menu extension point
@@ -129,7 +135,7 @@ export function init (extensionPoints) {
 ```
 
 ### Installing plugins
-Plugins are managed in the main process but can be installed from the main process or the renderer. In this setup we will use the renderer. This requires the initialisation of the plugin facade in the renderer using a [preload script](https://www.electronjs.org/docs/latest/tutorial/process-model/#preload-scripts). Doing everything from the main process is described in the [API documentation](https://github.com/dutchigor/pluggable-electron/wiki/main-API).
+Plugins are managed in the main process but can be installed from the renderer or the main process. In this setup we will use the renderer. This requires the initialisation of the plugin facade in the renderer using a [preload script](https://www.electronjs.org/docs/latest/tutorial/process-model/#preload-scripts). Doing everything from the main process is described in the [API documentation](https://github.com/dutchigor/pluggable-electron/wiki/main-API).
 
 Once installed, the plugins should be loaded on every startup.
 
@@ -139,54 +145,51 @@ const pe = require( "pluggable-electron/main" )
 ...
 app.whenReady().then(() => {
   //Initialise pluggable Electron
-  pe.init(
-    {
-      // Function to check from the main process that user wants to install a plugin
-      confirmInstall: async plg => {
+  pe.init({
+      // Function to check from the main process that user wants to install a plugin for security
+      confirmInstall: async plugins => {
         const answer = await dialog.showMessageBox({
-          message: `Are you sure you want to install the plugin found at:
-              ${plg}`,
+          message: `Are you sure you want to install the plugins ${plugins.join(', ')}`,
           buttons: ['Ok', 'Cancel'],
           cancelId: 1,
         })
         return answer.response == 0
-      }
-    },
-    // Path to install plugin to
-    path.join(app.getPath('userData'), 'plugins')
-  )
+      },
+      // Folder to save the plugins to
+      pluginsPath: path.join(app.getPath('userData'), 'plugins')
+    })
   ...
 })
 ```
+
 ```js
 // preload.js
-const { contextBridge } = require('electron')
-const facade = require("pluggable-electron/preload")
-
-contextBridge.exposeInMainWorld("plugins", facade)
+const useFacade = require("pluggable-electron/preload")
+useFacade()
 ```
+
 ```js
 // renderer/your-install-module.js
+import { plugins } from 'pluggable-electron/renderer'
 
-// Get plugin file from input, install and register
+// Get plugin file from input and install
 document.getElementById( 'install-file-input' ).addEventListener( 'change', (e) =>
-   window.plugins.install( e.target.files[0].path )
-      .then( (plugin) => window.plugins.register(plugin) )
+   plugins.install( [e.target.files[0].path] )
 )
 ```
+
 ```js
 //  renderer/index.js
-import { activationPoints } from "pluggable-electron/renderer"
+import { setup, plugins, activationPoints } from "pluggable-electron/renderer"
 
 // Enable the activation points
-activationPoints.setup({
+setup({
   importer: async (pluginPath) => import( /* webpackIgnore: true */ pluginPath)
 })
 
-// Get plugins that have been loaded in the main process
+// Get plugins that have been installed previously
 // and register them with their activation points
-window.plugins.getActive()
-  .then( plugins => plugins.forEach( plugin => window.plugins.register(plugin) ) )
+plugins.registerActive()
 
 // insert at any point after the plugins have been registered
 activationPoints.trigger( 'init' )
@@ -199,6 +202,7 @@ Now the `yourCustomExtension` function in the plugin will be executed when the e
 Pluggable Electron provides a host of functions to support the full plugin lifecycle and some alternative workflows. A more detailed description of the full lifecycle, as well as a detailed API documentation can be found in the [wiki](https://github.com/dutchigor/pluggable-electron/wiki).
 
 ## Demo
+
 A demo project using Pluggable Electron can be found here: https://github.com/dutchigor/pluggable-electron-demo. Also check out the with-vue branch to see an example with Vite and Vue. This example contains a few catches to be aware of when using packaged frontend framework so I recommend checking this out for any such framework.
 
 ## Roadmap
@@ -214,6 +218,10 @@ Contributions are what make the open-source community such an amazing place to b
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
+
+## Release Notes
+
+See [Changelog](./CHANGELOG.md)
 
 ## License
 

@@ -51,6 +51,7 @@ export function register(ep, extension, response, priority) {
 /**
  * Remove extensions matching regular expression from all extension points.
  * @param {RegExp} name Matcher for the name of the extension to remove.
+ * @alias extensionPoints.unregisterAll
  */
 export function unregisterAll(name) {
   for (const ep in _extensionPoints) _extensionPoints[ep].unregister(name)

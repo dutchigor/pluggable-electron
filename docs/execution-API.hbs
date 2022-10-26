@@ -1,7 +1,7 @@
 # API definition for using Pluggable Electron in the renderer process
 
 Managing the execution of Pluggable Electron activation and extension points is done in the renderer. The activation
-manager needs to be [set up](#activationPoints.setup) before the other features can be used in the renderer.
+manager needs to be [set up](#setup) before the other features can be used in the renderer.
 
 The activation and execution managers can be imported in the renderer process by requiring pluggable electron. E.g.
 `import { extensionPoints, activationPoints } from "pluggable-electron"`
@@ -10,14 +10,9 @@ To access the plugin manager from the renderer, the Plugin Manager must first be
 [initialised](./Plugin-manager-API#init) in the main
 process, and facade must be initialised in the renderer. If nodeIntegration is set to true, the facade can be imported
 directly in the renderer, otherwise this needs to be imported in the preload script. Examples:
-- in renderer: `const facade = require("pluggable-electron/facade")`
-- in preload:
 ```
-const { contextBridge } = require('electron')
-
-const facade = require("pluggable-electron/facade")
-
-contextBridge.exposeInMainWorld("plugins", facade)
+const useFacade = require("pluggable-electron/facade")
+useFacade()
 ```
 
 All of the items described below can be accessed by importing Pluggable Electron in the renderer except for the Facade.

@@ -3,14 +3,14 @@
 * The parameters for the init function have moved to an options object to support further options in the future. See API specification.
 * The installPlugin response from init has been renamed to installPlugins and expects an array of plugins as input.
 * The confirmInstall function will now receive a list of specifiers as parameter to handle the installation of multiple plugins at once.
-* The update method on a plugin will now reload all renderers to remove any legacy extensions.
-* The uninstall method on a plugin will now remove the plugin directly and reload all renderers remove any legacy extensions.
 * The setup function in the renderer had been moved from the activationPoints object to the parent object to handle a build conflict.
-* The facade functions are moved from preload to a facade export in the renderer. The facade still needs to be registered during preload but should now just be called instead of exposed.
+* The facade functions are moved from preload to a plugins export in the renderer. The facade still needs to be registered during preload but should now just be called instead of exposed.
+* The update and install methods on the facade now accept an array of plugin names and return an array of plugins. They also reload all renderers if reload is true, to remove any legacy extensions.
 
 ### Features
 * Added the isUpdateAvailable method to the Plugin class.
 * Added the triggerExport method on the Plugin class as returned by the facade functions. This allows for executing lifecycle functions on individual plugins, like on installation or update.
+* Added registerActive method to facade to register all active plugins in the renderer.
 
 ## Version 0.5.1
 * Update dependencies to latest versions for security fix.

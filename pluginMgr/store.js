@@ -116,8 +116,8 @@ export async function installPlugins(plugins, store = true) {
 }
 
 /**
- * @typedef {<Object.<string, any>} installOptions The {@link https://www.npmjs.com/package/pacote|pacote}
- * options used to install the plugin.
+ * @typedef {Object.<string, any>} installOptions The {@link https://www.npmjs.com/package/pacote|pacote}
+ * options used to install the plugin with some extra options.
  * @param {string} specifier the NPM specifier that identifies the package.
  * @param {boolean} [activate] Whether this plugin should be activated after installation. Defaults to true.
  */
