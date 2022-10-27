@@ -44,13 +44,13 @@ export default [
       {
         file: 'dist/facade.js',
         format: 'cjs',
-        exports: "named",
+        exports: "default",
       },
       {
         file: 'dist/facade.min.js',
         format: 'cjs',
         plugins: [terser()],
-        exports: "named",
+        exports: "default",
         sourcemap: true,
       },
 
