@@ -1,6 +1,7 @@
 import { rmdir } from "fs/promises"
 import { resolve, join } from "path"
 import { manifest, extract } from "pacote"
+import Arborist from '@npmcli/arborist'
 
 import { pluginsPath } from "./globals"
 
@@ -18,7 +19,8 @@ class Plugin {
    * @property {Array<string>} activationPoints List of {@link ./Execution-API#activationPoints|activation points}.
    * @property {string} main The entry point as defined in the main entry of the manifest.
    */
-  #dependencies
+
+  /** @private */
   _active = false
 
   /**
@@ -35,7 +37,8 @@ class Plugin {
   constructor(origin, options = {}) {
     const defaultOpts = {
       version: false,
-      fullMetadata: false
+      fullMetadata: false,
+      Arborist
     }
 
     this.origin = origin
@@ -70,7 +73,6 @@ class Plugin {
       // set the Package properties based on the it's manifest
       this.name = mnf.name
       this.version = mnf.version
-      this.#dependencies = mnf.dependencies || {}
       this.activationPoints = mnf.activationPoints || null
       this.main = mnf.main
 

@@ -13,7 +13,7 @@ const main = 'index'
 let plugin
 
 beforeAll(() => {
-  const pm = init({
+  init({
     confirmInstall: () => true,
     pluginsPath: pluginsDir,
   })
