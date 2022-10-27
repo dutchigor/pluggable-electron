@@ -1,17 +1,25 @@
 /**
  * Provides access to the plugins stored by Pluggable Electron
- * @typedef pluginManager
+ * @typedef {Object} pluginManager
+ * @prop {getPlugin} getPlugin
+ * @prop {getAllPlugins} getAllPlugins
+ * @prop {getActivePlugins} getActivePlugins
+ * @prop {installPlugins} installPlugins
+ * @prop {removePlugin} removePlugin
  */
 
 import { writeFileSync } from "fs"
 import Plugin from "./Plugin"
 import { getPluginsFile } from './globals'
 
-// Register of installed plugins
 /**
+ * @module store
  * @private
- * @typedef plugins
- * @param {...Plugin} plugin - List of installed plugins
+ */
+
+/**
+ * Register of installed plugins
+ * @type {Object.<string, Plugin>} plugin - List of installed plugins
  */
 const plugins = {}
 
@@ -59,7 +67,6 @@ export function removePlugin(name, persist = true) {
 }
 
 /**
- * @private
  * Add plugin to store and maybe save stored plugins to file
  * @param {Plugin} plugin Plugin to add to store
  * @param {boolean} persist Whether to save the changes to plugins to file
@@ -74,7 +81,6 @@ export function addPlugin(plugin, persist = true) {
 }
 
 /**
- * @private
  * Save stored plugins to file
  * @returns {void}
  */
@@ -91,7 +97,7 @@ export function persistPlugins() {
  * @param {Array.<installOptions | string>} plugins A list of NPM specifiers, or installation configuration objects.
  * @param {boolean} [store=true] Whether to store the installed plugins in the store
  * @returns {Promise.<Array.<Plugin>>} New plugin
- * @alias pluginManager.installPlugin
+ * @alias pluginManager.installPlugins
  */
 export async function installPlugins(plugins, store = true) {
   const installed = []
