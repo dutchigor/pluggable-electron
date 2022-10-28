@@ -1,16 +1,17 @@
 # Pluggable Electron
+**Pluggable Electron is a framework to build Electron apps that can be extended by other parties.** 
+
 ![package-size](https://img.shields.io/bundlephobia/min/pluggable-electron)
-![stars](https://img.shields.io/github/stars/dutchigor/pluggable-electron)
-![license](https://img.shields.io/github/license/dutchigor/pluggable-electron)
+[![stars](https://img.shields.io/github/stars/dutchigor/pluggable-electron)](https://github.com/dutchigor/pluggable-electron)
+[![license](https://img.shields.io/github/license/dutchigor/pluggable-electron)](./LICENSE)
 ![language](https://img.shields.io/github/languages/top/dutchigor/pluggable-electron)
 ![vulnerabilities](https://img.shields.io/snyk/vulnerabilities/npm/pluggable-electron)
-![version](https://img.shields.io/npm/v/pluggable-electron)
-![electron](https://img.shields.io/npm/dependency-version/pluggable-electron/peer/electron)
+[![version](https://img.shields.io/npm/v/pluggable-electron)](https://www.npmjs.com/package/pluggable-electron)
+[![electron](https://img.shields.io/npm/dependency-version/pluggable-electron/peer/electron)](https://www.npmjs.com/package/electron)
 ![coverage](./shields/coverage.svg)
 
 <!-- TOC depthfrom:2 depthto:3 -->
 
-* [What is Pluggable Electron](#what-is-pluggable-electron)
 * [Introduction](#introduction)
   * [❗Notice❗](#notice)
 * [Getting Started](#getting-started)
@@ -31,9 +32,6 @@
 * [Contact](#contact)
 
 <!-- /TOC -->
-## What is Pluggable Electron
-**Pluggable Electron is a framework to build Electron apps that can be extended by other parties.** 
-
 ## Introduction
 
 Pluggable Electron allows an [Electron](https://www.electronjs.org/) app to include extension points in the code. Plugin developers can then write extensions - in the form of npm packages - that can be inserted into these extension points.
