@@ -1,5 +1,5 @@
-import { terser } from "rollup-plugin-terser"
-import pkg from './package.json'
+import terser from '@rollup/plugin-terser'
+import pkg from './package.json' assert { type: 'json' }
 import { builtinModules } from "module"
 const deps = Object.keys(pkg.dependencies)
 const peerDeps = Object.keys(pkg.peerDependencies)
@@ -53,7 +53,6 @@ export default [
         exports: "default",
         sourcemap: true,
       },
-
     ],
   },
   {
