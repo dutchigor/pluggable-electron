@@ -104,7 +104,7 @@ describe('getPlugin', () => {
 	})
 
 	it('should return an error if the plugin with the given name is not registered', () => {
-		expect(() => getPlugin('wrongName')).toThrowError('Plugin wrongName does not exist')
+		expect(() => getPlugin('wrongName')).toThrow('Plugin wrongName does not exist')
 	})
 })
 

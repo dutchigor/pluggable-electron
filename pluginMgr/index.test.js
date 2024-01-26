@@ -32,7 +32,7 @@ const demoPlugin = {
 describe('before setting a plugin path', () => {
 	describe('getStore', () => {
 		it('should throw an error if called without a plugin path set', () => {
-			expect(() => getStore()).toThrowError(
+			expect(() => getStore()).toThrow(
 				'The plugin path has not yet been set up. Please run usePlugins before accessing the store'
 			)
 		})
@@ -40,13 +40,13 @@ describe('before setting a plugin path', () => {
 
 	describe('usePlugins', () => {
 		it('should throw an error if called without a plugin path whilst no plugin path is set', () => {
-			expect(() => usePlugins()).toThrowError(
+			expect(() => usePlugins()).toThrow(
 				'A path to the plugins folder is required to use Pluggable Electron'
 			)
 		})
 
 		it('should throw an error if called with an invalid plugin path', () => {
-			expect(() => usePlugins('http://notsupported')).toThrowError(
+			expect(() => usePlugins('http://notsupported')).toThrow(
 				'Invalid path provided to the plugins folder'
 			)
 		})
@@ -114,7 +114,7 @@ describe('after setting a plugin path', () => {
 		})
 
 		it('should unregister any registered plugins before registering the new ones if a plugin path is provided', () => {
-			expect(() => getPlugin(registeredPluginName)).toThrowError(
+			expect(() => getPlugin(registeredPluginName)).toThrow(
 				`Plugin ${registeredPluginName} does not exist`
 			)
 		})
@@ -139,7 +139,7 @@ describe('init', () => {
 	// })
 
 	it('should make the plugin files available through the plugin protocol', async () => {
-		expect(protocol.isProtocolRegistered('plugin')).toBeTruthy()
+		expect(protocol.isProtocolHandled('plugin')).toBeTruthy()
 	})
 
 	it('should return an empty object if no plugin path is provided', () => {
