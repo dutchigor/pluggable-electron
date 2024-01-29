@@ -20,7 +20,6 @@ import {
 	setConfirmInstall,
 } from './globals'
 import router from './router'
-import { log } from 'console'
 
 /**
  * Sets up the required communication between the main and renderer processes.
@@ -57,7 +56,9 @@ export function init(options) {
  * @returns {boolean} Whether the protocol registration was successful
  */
 function registerPluginProtocol() {
-	return protocol.handle('plugin', request => {
+	const name = 'plugin'
+	if (protocol.isProtocolHandled(name)) return false
+	return protocol.handle(name, request => {
 		const { hostname, pathname } = new URL(request.url)
 		const url = pathToFileURL(join(storedPluginsPath, hostname, normalize(pathname)))
 		return net.fetch(url)
